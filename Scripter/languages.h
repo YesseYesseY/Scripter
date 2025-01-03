@@ -1,9 +1,10 @@
 #pragma once
 
 #include <UE/structs.h>
-#include <duktape/duktape.h>
 
 //  https://youtu.be/o-ass4mkdiA
+
+// TODO: Continue this?
 
 #define DLL_EXPORT _declspec(dllexport)
 
@@ -48,64 +49,4 @@ extern "C" {
 	{
 		std::cout << str << '\n';
 	}
-}
-
-static bool bHasDuktapeInitialized = false;
-
-static duk_ret_t cout(duk_context* ctx)
-{
-	std::cout << duk_to_string(ctx, 0) << '\n';
-	return 0;  /* no return value (= undefined) */
-}
-
-static duk_ret_t FindObject(duk_context* ctx) 
-{
-	auto objName = duk_to_string(ctx, 0);
-	auto Object = FindObject(objName);
-	
-	if (!Object)
-	{
-		std::cout << _("Object not found: ") << objName << '\n';
-		return 0;
-	}
-	
-	duk_push_pointer(ctx, Object);
-	
-	return 1;
-}
-
-static duk_ret_t GetFullName(duk_context* ctx)
-{
-	auto Object = (UObject*)duk_to_pointer(ctx, 0);
-
-	if (!Object)
-	{
-		std::cout << _("Invalid object!\n");
-		return 0;
-	}
-
-	duk_push_string(ctx, Object->GetFullName().c_str());
-
-	return 1;
-}
-
-duk_context* ctx;
-
-void initDuktape()
-{
-	if (bHasDuktapeInitialized)
-		return;
-
-	ctx = duk_create_heap_default();
-	
-	duk_push_c_function(ctx, cout, 1 /*number of args*/);
-	duk_put_global_string(ctx, _("cout"));
-
-	duk_push_c_function(ctx, FindObject, 1);
-	duk_put_global_string(ctx, _("FindObject"));
-	
-	duk_push_c_function(ctx, GetFullName, 1);
-	duk_put_global_string(ctx, _("GetFullName"));
-
-	bHasDuktapeInitialized = true;
 }

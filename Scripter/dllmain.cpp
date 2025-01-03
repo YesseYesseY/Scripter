@@ -7,10 +7,12 @@
 
 #include "util.h"
 #include <zip_file.hpp>
+#include "dotnet.h"
 
 using namespace nlohmann;
 namespace fs = std::filesystem;
 
+#if 0
 static int AmountOfInjects = 0; // for some reason, return values are just like broken idk.
 
 namespace Scripter
@@ -46,14 +48,6 @@ namespace Scripter
                     case CSharp:
                         AmountOfInjects += 1;
                         ExecuteCSharp(dll_path.generic_wstring());
-                        break;
-                    case CPP:
-                        AmountOfInjects += 1;
-                        Inject(dll_path.generic_string());
-                        break;
-                    case JS:
-                        AmountOfInjects += 1;
-                        ExecuteJS(dll_path.generic_string());
                         break;
                     default:
                         std::cout << _("Could not deduce language!\n");
@@ -143,6 +137,7 @@ namespace Scripter
         return;
     }
 }
+#endif
 
 DWORD WINAPI Main(LPVOID)
 {
@@ -151,6 +146,9 @@ DWORD WINAPI Main(LPVOID)
     FILE* file;
     freopen_s(&file, _("CONOUT$"), _("w"), stdout);
 
+    DotNet::Init();
+
+#if 0
     if (!Setup())
     {
         MessageBoxA(0, _("Failed!"), _("Setup"), MB_OK);
@@ -174,6 +172,7 @@ DWORD WINAPI Main(LPVOID)
     }
 	
     std::cout << _("\nInitialized ") << AmountOfInjects << _(" Scripts!\n");
+#endif
 
     return 0;
 }

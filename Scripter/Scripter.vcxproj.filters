@@ -21,9 +21,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\vendor\duktape\duktape.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="languages.h">
@@ -37,6 +34,9 @@
     </ClInclude>
     <ClInclude Include="UE\structs.h">
       <Filter>Header Files\UE</Filter>
+    </ClInclude>
+    <ClInclude Include="dotnet.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
