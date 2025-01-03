@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using static ScripterCS.Scripter;
-
+﻿using System.Runtime.InteropServices;
 namespace ScripterCS.UE
 {
     [StructLayout(LayoutKind.Sequential)]
@@ -14,9 +7,17 @@ namespace ScripterCS.UE
         public void** VFTable;
         public int ObjectFlags;
         public int InternalIndex;
-        public UObject* ClassPrivate;
+        public UStruct* ClassPrivate; // TODO: UClass
         public FName NamePrivate;
         public UObject* OuterPrivate;
+        
+        public unsafe nint GetPtrOffset(int offset)
+        {
+            fixed (void* ptr = &this)
+            {
+                return (nint)ptr + offset;
+            }
+        }
 
         public string GetName()
         {

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using ScripterCS.UE;
 
@@ -45,7 +46,27 @@ namespace ScripterCS
             FNameToString = Marshal.GetDelegateForFunctionPointer<FNameToStringDelegate>(FNameToStringAddr);
             ObjObjects = (FChunkedFixedUObjectArray*)ObjectsAddr;
 
-            DumpObjects();
+            for (int i = 0; i < ObjObjects->NumElements; i++)
+            {
+                var obj = ObjObjects->GetObjectById(i);
+                if (obj == null) continue;
+                if (obj->GetFullName().Contains("FortEngine_"))
+                {
+                    var Engine = (UStruct*)obj;
+                    var GameViewport = Engine->GetChildObject("GameViewport");
+
+                    break;
+                }
+            }
+            //DumpObjects();
+        }
+        
+        static void DumpOffsets<T>()
+        {
+            foreach (var field in typeof(T).GetFields())
+            {
+                Print($"{field.Name}: {Marshal.OffsetOf<T>(field.Name)}");
+            }
         }
 
         static void DumpObjects()
@@ -65,43 +86,3 @@ namespace ScripterCS
         }
     }
 }
-/*
-
-UObject (40)
- 
-4.23:
-
-UField : UObject // size 48
-{
-    UField* Next; // size 8 offset 40
-}
-
-UEnum : UField // size 80 + ?
-{
-    FString CppType;                   // size 16 offset 48
-    TArray<TPair<FName, int64>> Names; // size 16 offset 64
-    // Who cares about the rest
-}
-
-UStruct : UField // size 136
-{
-    FStructBaseChain ??? this messes up everything i just did !
-
-    UStruct* SuperStruct;                    // size 8  offset 48
-    UField* Children;                        // size 8  offset 56
-    int32 PropertiesSize;                    // size 4  offset 64
-    int32 MinAlignment;                      // size 4  offset 68
-    TArray<uint8> Script;                    // size 16 offset 72
-    UProperty* PropertyLink;                 // size 8  offset 88
-    UProperty* RefLink;                      // size 8  offset 96
-    UProperty* DestructorLink;               // size 8  offset 104
-    UProperty* PostConstructLink;            // size 8  offset 112
-    TArray<UObject*> ScriptObjectReferences; // size 16 offset 120
-}
-
-UClass : UStruct
-{
-    // TODO   
-}
- 
- */
