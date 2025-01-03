@@ -1,104 +1,19 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using ScripterCS.UE;
 
 namespace ScripterCS
 {
-    public static class Scripter
+    public static unsafe class Scripter
     {
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct FUObjectItem
-        {
-            public UObject* Object;
-            public int Flags;
-            public int ClusterRootIndex;
-            public int SerialNumber;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct FChunkedFixedUObjectArray
-        {
-            static int NumElementsPerChunk = 64 * 1024;
-            FUObjectItem** Objects;
-            FUObjectItem* PreAllocatedObjects;
-            int MaxElements;
-            public int NumElements;
-            int MaxChunks;
-            int NumChunks;
-
-            public UObject* GetObjectById(int Index)
-            {
-                if (Index > NumElements || Index < 0) return null;
-
-                int ChunkIndex = Index / NumElementsPerChunk;
-                int WithinChunkIndex = Index % NumElementsPerChunk;
-
-                if (ChunkIndex > NumChunks) return null;
-                FUObjectItem* Chunk = Objects[ChunkIndex];
-                if (Chunk == null) return null;
-
-                var obj = (Chunk + WithinChunkIndex)->Object;
-
-                return obj;
-            }
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct FName
-        {
-            public uint ComparisonIndex;
-            public uint Number;
-
-            public static FString ToFString(FName name)
-            {
-                FString str;
-                FNameToString(&name, &str);
-                return str;
-            }
-
-            public FString ToFString()
-            {
-                return ToFString(this);
-            }
-
-            public override string ToString()
-            {
-                return ToFString().ToString();
-            }
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct TArray<T>
-        {
-            public T* Data;
-            public int ArrayNum;
-            public int ArrayMax;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct FString
-        {
-            public TArray<char> arr;
-
-            public override string ToString()
-            {
-                return new string(arr.Data);
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct UObject
-        {
-            public void** VFTable;
-            public int ObjectFlags;
-            public int InternalIndex;
-            public UObject* ClassPrivate;
-            public FName NamePrivate;
-            public UObject* OuterPrivate;
-        }
-
         // TODO: Make all this cleaner/better
-        unsafe delegate long FindPatternDelegate(nint signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
-        static FindPatternDelegate FindPatternC;
-        unsafe delegate void FNameToStringDelegate(FName* name, FString* arr);
-        static FNameToStringDelegate FNameToString;
-        unsafe delegate void CSharpPrintDelegate(nint str);
-        static CSharpPrintDelegate CSharpPrint;
+        public unsafe delegate long FindPatternDelegate(nint signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
+        public unsafe delegate void FNameToStringDelegate(FName* name, FString* arr);
+        public unsafe delegate void CSharpPrintDelegate(nint str);
+        public static FindPatternDelegate FindPatternC;
+        public static FNameToStringDelegate FNameToString;
+        public static CSharpPrintDelegate CSharpPrint;
+        public static FChunkedFixedUObjectArray* ObjObjects;
 
         public static void Print(string str)
         {
@@ -120,7 +35,7 @@ namespace ScripterCS
         {
             FindPatternC = Marshal.GetDelegateForFunctionPointer<FindPatternDelegate>(FindPatternPtr);
             CSharpPrint = Marshal.GetDelegateForFunctionPointer<CSharpPrintDelegate>(CSharpPrintPtr);
-            
+
             Print("Hello from c#");
 
             // TODO: Add more, its 3 am and i dont feel like switching off 8.50
@@ -128,8 +43,13 @@ namespace ScripterCS
             var ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1 EB 03 48 8B ? 81 48 08 ? ? ? 40 49", false, 7, true);
             if (ObjectsAddr == IntPtr.Zero) ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
             FNameToString = Marshal.GetDelegateForFunctionPointer<FNameToStringDelegate>(FNameToStringAddr);
-            
-            FChunkedFixedUObjectArray* ObjObjects = (FChunkedFixedUObjectArray*)ObjectsAddr.ToPointer();
+            ObjObjects = (FChunkedFixedUObjectArray*)ObjectsAddr;
+
+            DumpObjects();
+        }
+
+        static void DumpObjects()
+        {
             string objFilePath = "C:/FN/obj.txt";
             Print($"Writing ~{ObjObjects->NumElements} objects to {objFilePath}");
             using (var stream = File.OpenWrite(objFilePath))
@@ -138,10 +58,50 @@ namespace ScripterCS
                 {
                     var obj = ObjObjects->GetObjectById(i);
                     if (obj == null) continue;
-                    stream.Write(Encoding.UTF8.GetBytes($"[{i}] {obj->NamePrivate}\n"));
+                    stream.Write(Encoding.UTF8.GetBytes($"[{i}] {obj->GetFullName()}\n"));
                 }
             }
             Print("Finished!");
         }
     }
 }
+/*
+
+UObject (40)
+ 
+4.23:
+
+UField : UObject // size 48
+{
+    UField* Next; // size 8 offset 40
+}
+
+UEnum : UField // size 80 + ?
+{
+    FString CppType;                   // size 16 offset 48
+    TArray<TPair<FName, int64>> Names; // size 16 offset 64
+    // Who cares about the rest
+}
+
+UStruct : UField // size 136
+{
+    FStructBaseChain ??? this messes up everything i just did !
+
+    UStruct* SuperStruct;                    // size 8  offset 48
+    UField* Children;                        // size 8  offset 56
+    int32 PropertiesSize;                    // size 4  offset 64
+    int32 MinAlignment;                      // size 4  offset 68
+    TArray<uint8> Script;                    // size 16 offset 72
+    UProperty* PropertyLink;                 // size 8  offset 88
+    UProperty* RefLink;                      // size 8  offset 96
+    UProperty* DestructorLink;               // size 8  offset 104
+    UProperty* PostConstructLink;            // size 8  offset 112
+    TArray<UObject*> ScriptObjectReferences; // size 16 offset 120
+}
+
+UClass : UStruct
+{
+    // TODO   
+}
+ 
+ */
