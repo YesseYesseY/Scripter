@@ -13,8 +13,8 @@ namespace ScripterSharp.UE
         public FName NamePrivate => _obj.NamePrivate;
         public UObject* OuterPrivate => _obj.OuterPrivate;
         public UField* Next => _obj.Next;
-        public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(64);
-        public UField* Children => *(UField**)GetPtrOffset(72);
+        public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(Offsets.SuperStruct);
+        public UField* Children => *(UField**)GetPtrOffset(Offsets.Children);
         private unsafe List<nint> GetAllChildren() // TODO: Make this IEnumerable?
         {
             List<nint> ret = new List<nint>();
