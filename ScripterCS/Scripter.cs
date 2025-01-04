@@ -7,36 +7,29 @@ namespace ScripterCS
 {
     public static unsafe class Scripter
     {
-        // TODO: Make all this cleaner/better
-        public unsafe delegate long FindPatternDelegate(nint signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern long FindPatternC(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern long CSharpPrint(string signature);
+
+
         public unsafe delegate void FNameToStringDelegate(FName* name, FString* arr);
-        public unsafe delegate void CSharpPrintDelegate(nint str);
-        public static FindPatternDelegate FindPatternC;
         public static FNameToStringDelegate FNameToString;
-        public static CSharpPrintDelegate CSharpPrint;
         public static FChunkedFixedUObjectArray* ObjObjects;
 
         public static void Print(string str)
         {
-            var cstr = Marshal.StringToHGlobalAnsi(str);
-            CSharpPrint(cstr);
-            Marshal.FreeHGlobal(cstr);
+            CSharpPrint(str);
         }
 
         public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false)
         {
-            var cstr = Marshal.StringToHGlobalAnsi(signature);
-            var addr = FindPatternC(cstr, bRelative, offset, bIsVar);
-            Marshal.FreeHGlobal(cstr);
-            return new IntPtr(addr);
+            return new nint(FindPatternC(signature, bRelative, offset, bIsVar));
         }
 
         [UnmanagedCallersOnly]
-        public static unsafe void Init(nint FindPatternPtr, nint CSharpPrintPtr)
+        public static unsafe void Init()
         {
-            FindPatternC = Marshal.GetDelegateForFunctionPointer<FindPatternDelegate>(FindPatternPtr);
-            CSharpPrint = Marshal.GetDelegateForFunctionPointer<CSharpPrintDelegate>(CSharpPrintPtr);
-
             Print("Hello from c#");
 
             // TODO: Add more, its 3 am and i dont feel like switching off 8.50
@@ -46,19 +39,19 @@ namespace ScripterCS
             FNameToString = Marshal.GetDelegateForFunctionPointer<FNameToStringDelegate>(FNameToStringAddr);
             ObjObjects = (FChunkedFixedUObjectArray*)ObjectsAddr;
 
-            for (int i = 0; i < ObjObjects->NumElements; i++)
-            {
-                var obj = ObjObjects->GetObjectById(i);
-                if (obj == null) continue;
-                if (obj->GetFullName().Contains("FortEngine_"))
-                {
-                    var Engine = (UStruct*)obj;
-                    var GameViewport = Engine->GetChildObject("GameViewport");
-
-                    break;
-                }
-            }
-            //DumpObjects();
+            //for (int i = 0; i < ObjObjects->NumElements; i++)
+            //{
+            //    var obj = ObjObjects->GetObjectById(i);
+            //    if (obj == null) continue;
+            //    if (obj->GetFullName().Contains("FortEngine_"))
+            //    {
+            //        var Engine = (UStruct*)obj;
+            //        var GameViewport = Engine->GetChildObject("GameViewport");
+            //        Print(GameViewport->GetFullName());
+            //        break;
+            //    }
+            //}
+            DumpObjects();
         }
         
         static void DumpOffsets<T>()

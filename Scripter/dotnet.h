@@ -70,11 +70,6 @@ namespace DotNet
         return (load_assembly_and_get_function_pointer_fn)load_assembly_and_get_function_pointer;
     }
 
-    void CSharpPrint(char* str)
-    {
-        std::cout << "[CSharp] " << str << '\n';
-    }
-
     void Init()
     {
         string_t root_path = L"C:\\Programming\\CPP\\Scripter\\ScripterCS\\bin\\Release\\net8.0\\";
@@ -107,7 +102,7 @@ namespace DotNet
         const wchar_t* dotnet_type = L"ScripterCS.Scripter, ScripterCS";
 
         // Function pointer to managed delegate with non-default signature
-        typedef void (CORECLR_DELEGATE_CALLTYPE* custom_entry_point_fn)(void*, void*);
+        typedef void (CORECLR_DELEGATE_CALLTYPE* custom_entry_point_fn)();
         custom_entry_point_fn initcs = nullptr;
 
         // UnmanagedCallersOnly
@@ -119,6 +114,6 @@ namespace DotNet
             nullptr,
             (void**)&initcs);
         if (!(rc == 0 && initcs != nullptr)) std::cout << "Failure: load_assembly_and_get_function_pointer()\n";
-        initcs(&FindPattern, &CSharpPrint);
+        initcs();
     }
 }

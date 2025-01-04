@@ -15,7 +15,7 @@ namespace ScripterCS.UE
         public UField* Next => _obj.Next;
         public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(64);
         public UField* Children => *(UField**)GetPtrOffset(72);
-        private unsafe List<nint> GetAllChildren()
+        private unsafe List<nint> GetAllChildren() // TODO: Make this IEnumerable?
         {
             List<nint> ret = new List<nint>();
             for (var CurrentClass = ClassPrivate; CurrentClass != null; CurrentClass = CurrentClass->SuperStruct)
