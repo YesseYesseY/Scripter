@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ScripterCS.UE
+namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UStruct
@@ -20,18 +20,18 @@ namespace ScripterCS.UE
             List<nint> ret = new List<nint>();
             for (var CurrentClass = ClassPrivate; CurrentClass != null; CurrentClass = CurrentClass->SuperStruct)
             {
-                var Prop = CurrentClass->Children;
+                var Child = CurrentClass->Children;
 
-                if (Prop != null)
+                if (Child != null)
                 {
-                    var Next = Prop->Next;
+                    var Next = Child->Next;
 
                     if (Next != null)
                     {
-                        while (Prop != null)
+                        while (Child != null)
                         {
-                            ret.Add((nint)Prop);
-                            Prop = Prop->Next;
+                            ret.Add((nint)Child);
+                            Child = Child->Next;
                         }
                     }
                 }
@@ -39,14 +39,21 @@ namespace ScripterCS.UE
             return ret;
         }
 
-        public UObject* GetChildObject(string name)
+        public UProperty* GetChildProperty(string name)
         {
-            foreach (UObject* child in GetAllChildren())
+            foreach (UProperty* child in GetAllChildren())
             {
                 if (child->GetName() == name)
                     return child;
             }
             return null;
+        }
+
+        public nint GetChildPointer(string name) // i would make this T* GetChildPointer<T>() but that doesnt support pointers!
+        {
+            var Prop = GetChildProperty(name);
+            if (Prop is null) return nint.Zero;
+            return GetPtrOffset(Prop->Offset_Internal);
         }
 
         public unsafe nint GetPtrOffset(int offset) => _obj.GetPtrOffset(offset);

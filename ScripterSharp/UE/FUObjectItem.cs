@@ -5,13 +5,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScripterCS.UE
+namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct TArray<T> where T : unmanaged
+    public unsafe struct FUObjectItem
     {
-        public T* Data;
-        public int ArrayNum;
-        public int ArrayMax;
+        public UObject* Object;
+        public int Flags;
+        public int ClusterRootIndex;
+        public int SerialNumber;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ScripterCS.UE
+namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UField

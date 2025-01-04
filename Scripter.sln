@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scripter", "Scripter\Script
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptBuilder", "ScriptBuilder\ScriptBuilder.vcxproj", "{22D5961A-C27A-4BB1-9C0A-7B8C12383AD9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScripterCS", "ScripterCS\ScripterCS.csproj", "{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScripterSharp", "ScripterSharp\ScripterSharp.csproj", "{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

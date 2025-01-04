@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScripterCS.UE
+namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UProperty
@@ -18,13 +18,8 @@ namespace ScripterCS.UE
         public FName NamePrivate => _obj.NamePrivate;
         public UObject* OuterPrivate => _obj.OuterPrivate;
         public UField* Next => _obj.Next;
-        
-        //public int ArrayDim => *(int*)_obj.GetPtrOffset(48);
-        //public int ElementSize => *(int*)_obj.GetPtrOffset(52);
-        //public long PropertyFlags => *(long*)_obj.GetPtrOffset(56);
-        //public ushort RepIndex => *(ushort*)_obj.GetPtrOffset(64);
-        //public byte BlueprintReplicationCondition => *(byte*)_obj.GetPtrOffset(66);
-        //public byte Offset_Internal => *(byte*)_obj.GetPtrOffset(67);
+
+        public int Offset_Internal => *(int*)_obj.GetPtrOffset(68); // 68 for some reason, im not smart
 
         public unsafe nint GetPtrOffset(int offset) => _obj.GetPtrOffset(offset);
         public string GetName() => _obj.GetName();

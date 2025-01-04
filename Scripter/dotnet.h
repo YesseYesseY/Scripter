@@ -87,7 +87,7 @@ namespace DotNet
         //
         // STEP 2: Initialize and start the .NET Core runtime
         //
-        const string_t config_path = root_path + L"ScripterCS.runtimeconfig.json";
+        const string_t config_path = root_path + L"ScripterSharp.runtimeconfig.json";
         load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
         load_assembly_and_get_function_pointer = get_dotnet_load_assembly(config_path.c_str());
         if (load_assembly_and_get_function_pointer == nullptr) std::cout << "Failure: get_dotnet_load_assembly()\n";
@@ -95,8 +95,8 @@ namespace DotNet
         //
         // STEP 3: Load managed assembly and get function pointer to a managed method
         //
-        const string_t dotnetlib_path = root_path + L"ScripterCS.dll";
-        const wchar_t* dotnet_type = L"ScripterCS.Scripter, ScripterCS";
+        const string_t dotnetlib_path = root_path + L"ScripterSharp.dll";
+        const wchar_t* dotnet_type = L"ScripterSharp.Scripter, ScripterSharp";
 
         // Function pointer to managed delegate with non-default signature
         typedef void (CORECLR_DELEGATE_CALLTYPE* custom_entry_point_fn)();

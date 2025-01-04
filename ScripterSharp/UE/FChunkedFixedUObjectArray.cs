@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static ScripterCS.Scripter;
+using static ScripterSharp.Scripter;
 
-namespace ScripterCS.UE
+namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct FChunkedFixedUObjectArray
