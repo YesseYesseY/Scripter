@@ -9,5 +9,10 @@
 		<EnableDynamicLoading>true</EnableDynamicLoading>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
+	<PropertyGroup>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<OutputPath>$(SolutionDir)Build\ScripterSharp\</OutputPath>
+	</PropertyGroup>
 
 </Project>

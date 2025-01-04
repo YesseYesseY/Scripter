@@ -11,6 +11,8 @@
 
 namespace DotNet
 {
+    wchar_t dllpath[MAX_PATH];
+
     hostfxr_initialize_for_dotnet_command_line_fn init_for_cmd_line_fptr;
     hostfxr_initialize_for_runtime_config_fn init_for_config_fptr;
     hostfxr_get_runtime_delegate_fn get_delegate_fptr;
@@ -72,12 +74,7 @@ namespace DotNet
 
     void Init()
     {
-        string_t root_path = L"C:\\Programming\\CPP\\Scripter\\ScripterCS\\bin\\Release\\net8.0\\";
-        if (!fs::exists(root_path))
-        {
-            MessageBox(0, L"Sadly root of dotnet is hardcoded right now, please change it in dotnet.h", L"Scripter", MB_OK);
-            return;
-        }
+        string_t root_path = fs::absolute(std::wstring(dllpath) + L"\\..\\ScripterSharp\\");
         //
         // STEP 1: Load HostFxr and get exported hosting functions
         //
