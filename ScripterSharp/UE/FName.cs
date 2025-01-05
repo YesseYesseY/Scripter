@@ -16,7 +16,7 @@ namespace ScripterSharp.UE
         public static FString ToFString(FName name)
         {
             FString str;
-            Scripter.FNameToString(&name, &str);
+            Natives.FNameToString(&name, &str);
             return str;
         }
 

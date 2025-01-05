@@ -6,19 +6,8 @@ using ScripterSharp.UE;
 
 namespace ScripterSharp
 {
-    public static unsafe class Scripter
+    public static unsafe class PluginHandler
     {
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern long FindPatternC(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern long CSharpPrint(string signature);
-        [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void AddProcessEventHook(void* func, PEHookDelegate csfunc);
-        public delegate void PEHookDelegate(UObject* obj, void* argptr); // for some reason delegate*<UObject*, void*> doesn't work
-
-        public static unsafe delegate*<FName*, FString*, void> FNameToString;
-        public static unsafe delegate*<UObject*, UObject*, void*, void> ProcessEvent;
-        //public static FChunkedFixedUObjectArray* ObjObjects;
         public static ObjectArray Objects;
 
         public static string FortniteVersionString = "";
@@ -26,16 +15,9 @@ namespace ScripterSharp
         public static string EngineVersionString = "";
         public static double EngineVersion;
 
-
-        public static void Print(string str)
-        {
-            CSharpPrint(str);
-        }
-
-        public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false)
-        {
-            return new nint(FindPatternC(signature, bRelative, offset, bIsVar));
-        }
+        public static void Print(string str) => Natives.CSharpPrint(str);
+        public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false) => new nint(Natives.FindPatternC(signature, bRelative, offset, bIsVar));
+        public static void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
 
         public static UObject* FindObject(string name)
         {
@@ -46,16 +28,14 @@ namespace ScripterSharp
             return null;
         }
 
-        [UnmanagedCallersOnly]
-        public static unsafe void Init() // is basically just Setup() from structs.h
-        {
-            Print("Hello from c#");
 
+        private static bool Setup()
+        {
             var GetEngineAddr = FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
             if (GetEngineAddr == nint.Zero)
             {
                 Print("Couldn't find GetEngineVersion");
-                return;
+                return false;
             }
             delegate*<FString> GetEngineVersion = (delegate*<FString>)GetEngineAddr;
             string FullVersion = GetEngineVersion().ToString();
@@ -72,12 +52,12 @@ namespace ScripterSharp
                     FortniteVersion = double.Parse(FortniteVersionString, CultureInfo.InvariantCulture);
                     EngineVersion = double.Parse(EngineVersionString, CultureInfo.InvariantCulture) * 100;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Print(e.Message);
                     Print(FortniteVersionString);
                     Print(EngineVersionString);
-                    return;
+                    return false;
                 }
 
             }
@@ -126,7 +106,7 @@ namespace ScripterSharp
                 FNameToStringAddr = FindPattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 30 8B 01 48 8B F1 44 8B 49 04 8B F8 C1 EF 10 48 8B DA 0F B7 C8 89 4D 24 89 7D 20 45 85 C9");
                 ProcessEventAddr = FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 8B 41 0C 45 33 F6");
             }
-            
+
             if (EngineVersion >= 421 && EngineVersion <= 426)
             {
                 ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1 EB 03 48 8B ? 81 48 08 ? ? ? 40 49", false, 7, true);
@@ -143,22 +123,22 @@ namespace ScripterSharp
             if (FNameToStringAddr == nint.Zero)
             {
                 Print("Failed to find FNameToString");
-                return;
+                return false;
             }
             if (ProcessEventAddr == nint.Zero)
             {
                 Print("Failed to find ProcessEvent");
-                return;
+                return false;
             }
             if (ObjectsAddr == nint.Zero)
             {
                 Print("Failed to find Objects");
-                return;
+                return false;
             }
 
-            
-            FNameToString = (delegate*<FName*, FString*, void>)FNameToStringAddr;
-            ProcessEvent = (delegate*<UObject*, UObject*, void*, void>)ProcessEventAddr;
+
+            Natives.FNameToString = (delegate*<FName*, FString*, void>)FNameToStringAddr;
+            Natives.ProcessEvent = (delegate*<UObject*, UObject*, void*, void>)ProcessEventAddr;
             Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
 
             // TODO: Test more versions
@@ -173,15 +153,28 @@ namespace ScripterSharp
                 Offsets.Children = 72;
             }
 
+            return true;
+        }
+
+        [UnmanagedCallersOnly]
+        public static unsafe void Init() // is basically just Setup() from structs.h
+        {
+            Print("Hello from c#");
+
+            if (!Setup())
+            {
+                Print("Failed setup");
+                return;
+            }
+
             DumpObjects();
             CreateConsole();
-
             AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (UObject* obj, void* argPtr) =>
             {
                 Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
             });
         }
-        
+
         static void DumpOffsets<T>()
         {
             foreach (var field in typeof(T).GetFields())
@@ -213,7 +206,7 @@ namespace ScripterSharp
                 Class = ConsoleClass,
                 Outer = (UObject*)GameViewport
             };
-            ProcessEvent(GSC, fn, &args);
+            GSC->ProcessEvent(fn, &args);
             *ViewportConsole = args.Return;
         }
 

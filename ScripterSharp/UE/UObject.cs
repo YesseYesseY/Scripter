@@ -32,6 +32,14 @@ namespace ScripterSharp.UE
 
             return $"{ClassPrivate->GetName()} {temp}{GetName()}";
         }
+
+        public void ProcessEvent(UObject* func, void* args)
+        {
+            fixed (UObject* ptr = &this)
+            {
+                Natives.ProcessEvent(ptr, func, args);
+            }
+        }
     }
 
 }
