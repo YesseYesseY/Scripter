@@ -694,13 +694,13 @@ static uint64_t FindPattern(const char* signature, bool bRelative = false, uint3
 	return NULL;
 }
 
-static std::unordered_map<void*, std::function<void()>> ProcessEventHooks;
+static std::unordered_map<void*, std::function<void(UObject*, void*)>> ProcessEventHooks;
 
 void* ProcessEventHook(UObject* obj, UObject* func, void* params)
 {
 	if (func && ProcessEventHooks.contains(func))
 	{
-		ProcessEventHooks[func]();
+		ProcessEventHooks[func](obj, params);
 	}
 	return ProcessEventO(obj, func, params);
 }

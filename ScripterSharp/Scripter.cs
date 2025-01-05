@@ -12,8 +12,9 @@ namespace ScripterSharp
         public static extern long FindPatternC(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern long CSharpPrint(string signature);
-        [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        public static extern void AddProcessEventHook(void* func, Action csfunc);
+        [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void AddProcessEventHook(void* func, PEHookDelegate csfunc);
+        public delegate void PEHookDelegate(UObject* obj, void* argptr); // for some reason delegate*<UObject*, void*> doesn't work
 
         public static unsafe delegate*<FName*, FString*, void> FNameToString;
         public static unsafe delegate*<UObject*, UObject*, void*, void> ProcessEvent;
@@ -175,9 +176,9 @@ namespace ScripterSharp
             DumpObjects();
             CreateConsole();
 
-            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), () =>
+            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (UObject* obj, void* argPtr) =>
             {
-                Print("Test process event hook from c# :)");
+                Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
             });
         }
         
