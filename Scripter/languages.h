@@ -1,6 +1,7 @@
 #pragma once
 
 #include <UE/structs.h>
+#include "dotnet.h"
 
 //  https://youtu.be/o-ass4mkdiA
 
@@ -19,6 +20,10 @@ extern "C" {
 	DLL_EXPORT void CSharpPrint(const char* str)
 	{
 		std::cout << "[CSharp] " << str << '\n';
+	}
+	DLL_EXPORT void AddProcessEventHook(void* func, void(*csfunc)(void*))
+	{
+		ProcessEventHooks[func] = csfunc;
 	}
 	//DLL_EXPORT UObject* FindObject(const char* name)
 	//{

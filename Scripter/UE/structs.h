@@ -13,7 +13,9 @@
 #include "enums.h"
 #include <regex>
 #include "xorstr.hpp"
-
+#include <MinHook.h>
+#include <unordered_map>
+#include <functional>
 using namespace std::chrono;
 
 #define INL __forceinline
@@ -692,6 +694,17 @@ static uint64_t FindPattern(const char* signature, bool bRelative = false, uint3
 	return NULL;
 }
 
+static std::unordered_map<void*, std::function<void(void*)>> ProcessEventHooks;
+
+void* ProcessEventHook(UObject* obj, UObject* func, void* params)
+{
+	if (func && ProcessEventHooks.contains(func))
+	{
+		ProcessEventHooks[func](params);
+	}
+	return ProcessEventO(obj, func, params);
+}
+
 bool Setup() // TODO: Add Realloc
 {
 	uint64_t FreeMemoryAddr = 0;
@@ -853,7 +866,10 @@ bool Setup() // TODO: Add Realloc
 		return false;
 	}
 
-	ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
+	MH_CreateHook((LPVOID)ProcessEventAddr, &ProcessEventHook, (LPVOID*)&ProcessEventO);
+	MH_EnableHook((LPVOID)ProcessEventAddr);
+
+	//ProcessEventO = decltype(ProcessEventO)(ProcessEventAddr);
 
 	if (!ObjectsAddr)
 	{

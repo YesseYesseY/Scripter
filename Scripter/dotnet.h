@@ -8,7 +8,7 @@
 
 // mostly from https://github.com/dotnet/samples/tree/main/core/hosting/src
 // rn you need to insall nethost in vcpkg "vcpkg.exe install nethost:x64-windows-static"
-
+namespace fs = std::filesystem;
 namespace DotNet
 {
     wchar_t dllpath[MAX_PATH];
@@ -72,6 +72,10 @@ namespace DotNet
         return (load_assembly_and_get_function_pointer_fn)load_assembly_and_get_function_pointer;
     }
 
+    load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
+    string_t dotnetlib_path;
+    const wchar_t* dotnet_type = L"ScripterSharp.Scripter, ScripterSharp";
+
     void Init()
     {
         string_t root_path = fs::absolute(std::wstring(dllpath) + L"\\..\\ScripterSharp\\");
@@ -88,15 +92,13 @@ namespace DotNet
         // STEP 2: Initialize and start the .NET Core runtime
         //
         const string_t config_path = root_path + L"ScripterSharp.runtimeconfig.json";
-        load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
+        dotnetlib_path = root_path + L"ScripterSharp.dll";
         load_assembly_and_get_function_pointer = get_dotnet_load_assembly(config_path.c_str());
         if (load_assembly_and_get_function_pointer == nullptr) std::cout << "Failure: get_dotnet_load_assembly()\n";
 
         //
         // STEP 3: Load managed assembly and get function pointer to a managed method
         //
-        const string_t dotnetlib_path = root_path + L"ScripterSharp.dll";
-        const wchar_t* dotnet_type = L"ScripterSharp.Scripter, ScripterSharp";
 
         // Function pointer to managed delegate with non-default signature
         typedef void (CORECLR_DELEGATE_CALLTYPE* custom_entry_point_fn)();

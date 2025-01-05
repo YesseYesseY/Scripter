@@ -148,13 +148,19 @@ DWORD WINAPI Main(LPVOID)
 
     DotNet::Init();
 
-#if 0
+    if (MH_Initialize() != MH_OK)
+    {
+        MessageBoxA(0, "Minhook failed to initialize!", "Setup", MB_OK);
+        return 0;
+    }
+
     if (!Setup())
     {
         MessageBoxA(0, _("Failed!"), _("Setup"), MB_OK);
         return 0;
     }
 	
+#if 0
     if (!AppData::Init())
     {
         MessageBoxA(0, _("Failed!"), _("AppData"), MB_ICONERROR);

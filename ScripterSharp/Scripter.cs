@@ -12,6 +12,8 @@ namespace ScripterSharp
         public static extern long FindPatternC(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false);
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern long CSharpPrint(string signature);
+        [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        public static extern void AddProcessEventHook(void* func, Action<nint> csfunc);
 
         public static unsafe delegate*<FName*, FString*, void> FNameToString;
         public static unsafe delegate*<UObject*, UObject*, void*, void> ProcessEvent;
@@ -72,6 +74,8 @@ namespace ScripterSharp
                 catch(Exception e)
                 {
                     Print(e.Message);
+                    Print(FortniteVersionString);
+                    Print(EngineVersionString);
                     return;
                 }
 
@@ -156,12 +160,13 @@ namespace ScripterSharp
             ProcessEvent = (delegate*<UObject*, UObject*, void*, void>)ProcessEventAddr;
             Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
 
-            if (EngineVersion >= 420 && EngineVersion <= 422)
+            // TODO: Test more versions
+            if (EngineVersion >= 420 && EngineVersion <= 421)
             {
                 Offsets.SuperStruct = 48;
                 Offsets.Children = 56;
             }
-            if (EngineVersion == 423)
+            if (EngineVersion >= 422)
             {
                 Offsets.SuperStruct = 64;
                 Offsets.Children = 72;
@@ -169,6 +174,11 @@ namespace ScripterSharp
 
             DumpObjects();
             CreateConsole();
+
+            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (nint argPtr) =>
+            {
+                Print("Test process event hook from c# :)");
+            });
         }
         
         static void DumpOffsets<T>()
