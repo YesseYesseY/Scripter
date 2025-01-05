@@ -13,7 +13,7 @@ namespace ScripterSharp
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern long CSharpPrint(string signature);
         [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        public static extern void AddProcessEventHook(void* func, Action<nint> csfunc);
+        public static extern void AddProcessEventHook(void* func, Action csfunc);
 
         public static unsafe delegate*<FName*, FString*, void> FNameToString;
         public static unsafe delegate*<UObject*, UObject*, void*, void> ProcessEvent;
@@ -175,7 +175,7 @@ namespace ScripterSharp
             DumpObjects();
             CreateConsole();
 
-            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (nint argPtr) =>
+            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), () =>
             {
                 Print("Test process event hook from c# :)");
             });
