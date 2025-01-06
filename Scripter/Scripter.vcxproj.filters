@@ -16,10 +16,34 @@
     <Filter Include="Header Files\UE">
       <UniqueIdentifier>{ea052417-af89-4cd1-94bf-760d9105844c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Imgui">
+      <UniqueIdentifier>{a279bf36-a65c-4c60-864d-5602420d6703}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_demo.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_draw.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_tables.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_widgets.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_dx9.cpp">
+      <Filter>Resource Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_win32.cpp">
+      <Filter>Resource Files\Imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +60,9 @@
       <Filter>Header Files\UE</Filter>
     </ClInclude>
     <ClInclude Include="dotnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

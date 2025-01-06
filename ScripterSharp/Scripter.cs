@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -6,7 +7,7 @@ using ScripterSharp.UE;
 
 namespace ScripterSharp
 {
-    public static unsafe class PluginHandler
+    public static unsafe class Scripter
     {
         public static ObjectArray Objects;
 
@@ -167,12 +168,18 @@ namespace ScripterSharp
                 return;
             }
 
-            DumpObjects();
+            //foreach (ProcessModule module in Process.GetCurrentProcess().Modules)
+            //{
+            //    Print($"Found module: {module.FileName}");
+            //}
+
+            //DumpObjects();
             CreateConsole();
-            AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (UObject* obj, void* argPtr) =>
-            {
-                Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
-            });
+            new Thread(ScripterGui.Start).Start();
+            //AddProcessEventHook(FindObject("Function /Script/Engine.GameMode.ReadyToStartMatch"), (UObject* obj, void* argPtr) =>
+            //{
+            //    Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
+            //});
         }
 
         static void DumpOffsets<T>()

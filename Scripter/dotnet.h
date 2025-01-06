@@ -74,7 +74,7 @@ namespace DotNet
 
     load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
     string_t dotnetlib_path;
-    const wchar_t* dotnet_type = L"ScripterSharp.PluginHandler, ScripterSharp";
+    const wchar_t* dotnet_type = L"ScripterSharp.Scripter, ScripterSharp";
 
     void Init()
     {

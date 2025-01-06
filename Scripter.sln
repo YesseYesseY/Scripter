@@ -9,6 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptBuilder", "ScriptBuil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScripterSharp", "ScripterSharp\ScripterSharp.csproj", "{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C++", "C++", "{C7A39F55-A3C4-424E-92E7-B413300C4927}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "C#", "C#", "{D0EC0CA6-46F2-45A0-9559-B873E43E10D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScripterCommon", "ScripterCommon\ScripterCommon.csproj", "{BD55CBA2-0C39-4476-9E2C-89A1E411E085}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,9 +61,27 @@ Global
 		{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}.Release|x64.Build.0 = Release|Any CPU
 		{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}.Release|x86.ActiveCfg = Release|Any CPU
 		{90ACDD60-C8CA-4C34-AC57-263B71FFA18F}.Release|x86.Build.0 = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|x64.Build.0 = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Debug|x86.Build.0 = Debug|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|x64.ActiveCfg = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|x64.Build.0 = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|x86.ActiveCfg = Release|Any CPU
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{947E18EF-E2A8-429A-8E31-2BCC5FD4ED8D} = {C7A39F55-A3C4-424E-92E7-B413300C4927}
+		{22D5961A-C27A-4BB1-9C0A-7B8C12383AD9} = {C7A39F55-A3C4-424E-92E7-B413300C4927}
+		{90ACDD60-C8CA-4C34-AC57-263B71FFA18F} = {D0EC0CA6-46F2-45A0-9559-B873E43E10D4}
+		{BD55CBA2-0C39-4476-9E2C-89A1E411E085} = {D0EC0CA6-46F2-45A0-9559-B873E43E10D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7A0A086C-B445-40E0-A223-2BFE88EB736A}

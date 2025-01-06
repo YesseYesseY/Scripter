@@ -2,6 +2,8 @@
 
 #include <UE/structs.h>
 #include "dotnet.h"
+#include "gui.h"
+#pragma comment(lib, "d3d9.lib")
 
 //  https://youtu.be/o-ass4mkdiA
 
@@ -25,39 +27,9 @@ extern "C" {
 	{
 		ProcessEventHooks[func] = csfunc;
 	}
-	//DLL_EXPORT UObject* FindObject(const char* name)
-	//{
-	//	return bruh(name);
-	//}
+	DLL_EXPORT void InitGui(void(*guifunc)())
+	{
+		Init_Gui(guifunc);
+	}
 
-	//DLL_EXPORT const char* GetFullName(UObject* Object)
-	//{
-	//	return Object->GetFullName().c_str();
-	//}
-
-	//DLL_EXPORT void* Member(UObject* Object, const char* MemberName)
-	//{
-	//	return Object->Member<void>(MemberName);
-	//}
-	//
-	//DLL_EXPORT void* Function(UObject* Object, const char* FunctionName)
-	//{
-	//	return Object->Function(FunctionName);
-	//}
-
-	//DLL_EXPORT auto ProcessEvent(UObject* Object, UObject* Function, void* Params)
-	//{
-	//	// if (Object && Function)
-	//	return Object->ProcessEvent(Function, Params);
-	//}
-	//
-	//DLL_EXPORT auto ProcessEventStr(UObject* Object, const char* FuncName, void* Params)
-	//{
-	//	return Object->ProcessEvent(FuncName, Params);
-	//}
-	//
-	//DLL_EXPORT void cout(const char* str)
-	//{
-	//	std::cout << str << '\n';
-	//}
 }
