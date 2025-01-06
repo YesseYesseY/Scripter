@@ -27,9 +27,9 @@ extern "C" {
 	{
 		ProcessEventHooks[func] = csfunc;
 	}
-	DLL_EXPORT void InitGui(void(*guifunc)())
+	DLL_EXPORT void InitGui(void(*guifunc)(), LRESULT(*wndproc)(HWND, UINT, WPARAM, LPARAM))
 	{
-		Init_Gui(guifunc);
+		Init_Gui(guifunc, wndproc);
 	}
 
 }
