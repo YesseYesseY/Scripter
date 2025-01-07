@@ -27,18 +27,22 @@ namespace ScripterSharp
         private static Win32.WNDCLASSEXW wc;
         private static DXD9.D3DPRESENT_PARAMETERS g_d3dpp;
         private static nint hwnd;
-        private static nint g_pD3D;
-        private static nint g_pd3dDevice;
+        private static DXD9.LPDIRECT3D9* g_pD3D;
+        private static DXD9.LPDIRECT3DDEVICE9* g_pd3dDevice;
         private static void MainGui()
         {
-            ImGui.ShowDemoWindow(ref demoWindow);
+            ImGui.ShowDemoWindow();
 
             if (ImGui.Begin("Test window :)"))
             {
-                ImGui.Text("Welcome to imgui from c#");
+                ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
                 if (ImGui.Button("Test button"))
                 {
                     Scripter.Print("\"Hello there\" -button 2024");
+                }
+                if (ImGui.SmallButton("Test small button"))
+                {
+                    Scripter.Print("\"Hello there\" -small button 2024");
                 }
                 ImGui.End();
             }
@@ -50,7 +54,8 @@ namespace ScripterSharp
 
         private static void CleanupDeviceD3D()
         {
-            DXD9.CleanupDeviceD3D(g_pd3dDevice, g_pD3D);
+            g_pd3dDevice->Release();
+            g_pD3D->Release();
         }
 
         private static void ResetDevice()
@@ -58,7 +63,7 @@ namespace ScripterSharp
             ImGui.ImplDX9_InvalidateDeviceObjects();
             fixed (DXD9.D3DPRESENT_PARAMETERS* d3dppPtr = &g_d3dpp)
             {
-                DXD9.DXD9_Reset(g_pd3dDevice, d3dppPtr);
+                g_pd3dDevice->Reset(d3dppPtr);
             }
             ImGui.ImplDX9_CreateDeviceObjects();
         }
@@ -66,7 +71,7 @@ namespace ScripterSharp
         private static unsafe bool CreateDeviceD3D()
         {
             g_pD3D = DXD9.Direct3DCreate9(32);
-            if (g_pD3D == nint.Zero) return false;
+            if (g_pD3D == null) return false;
 
             g_d3dpp = new DXD9.D3DPRESENT_PARAMETERS()
             {
@@ -80,9 +85,9 @@ namespace ScripterSharp
 
             fixed (DXD9.D3DPRESENT_PARAMETERS* d3dppPtr = &g_d3dpp)
             {
-                fixed (nint* devicePtr = &g_pd3dDevice)
+                fixed (DXD9.LPDIRECT3DDEVICE9** devicePtr = &g_pd3dDevice)
                 {
-                    if (DXD9.DXD9_CreateDevice(g_pD3D, 0, 1, hwnd, 0x00000040, d3dppPtr, devicePtr) < 0)
+                    if (g_pD3D->CreateDevice(0, 1, hwnd, 0x00000040, d3dppPtr, devicePtr) < 0)
                         return false;
                 }
             }
@@ -156,12 +161,12 @@ namespace ScripterSharp
             ImGui.ImplDX9_Init(g_pd3dDevice);
 
             bool g_DeviceLost = false;
-            Vector4 clear_color = new Vector4(0.45f, 0.55f, 0.60f, 1.00f);
+            Vector4 clear_color = new Vector4(0.45f, 0.55f, 0.60f, 0.0f);
 
             bool done = false;
+            Win32.MSG msg = new Win32.MSG();
             while (!done)
             {
-                Win32.MSG msg = new Win32.MSG();
                 while (Win32.PeekMessageW(ref msg, nint.Zero, 0, 0, 0x0001) != 0)
                 {
                     Win32.TranslateMessage(ref msg);
@@ -174,7 +179,7 @@ namespace ScripterSharp
 
                 if (g_DeviceLost)
                 {
-                    int hr = DXD9.DXD9_TestCooperativeLevel(g_pd3dDevice);
+                    int hr = g_pd3dDevice->TestCooperativeLevel();
                     if (hr == -2005530520)
                     {
                         Thread.Sleep(10);
@@ -193,18 +198,18 @@ namespace ScripterSharp
 
                 ImGui.EndFrame();
 
-                DXD9.DXD9_SetRenderState(g_pd3dDevice, 7, 0);
-                DXD9.DXD9_SetRenderState(g_pd3dDevice, 27, 0);
-                DXD9.DXD9_SetRenderState(g_pd3dDevice, 174, 0);
+                g_pd3dDevice->SetRenderState(7, 0);
+                g_pd3dDevice->SetRenderState(27, 0);
+                g_pd3dDevice->SetRenderState(174, 0);
 
-                DXD9.DXD9_Clear(g_pd3dDevice, 0, nint.Zero, 0x00000001 | 0x00000002, clear_color.ToD3DColor(), 1.0f, 0);
-                if (DXD9.DXD9_BeginScene(g_pd3dDevice) >= 0)
+                g_pd3dDevice->Clear(0, nint.Zero, 0x00000001 | 0x00000002, clear_color.ToD3DColor(), 1.0f, 0);
+                if (g_pd3dDevice->BeginScene() >= 0)
                 {
                     ImGui.Render();
                     ImGui.ImplDX9_RenderDrawData(ImGui.GetDrawData());
-                    DXD9.DXD9_EndScene(g_pd3dDevice);
+                    g_pd3dDevice->EndScene();
                 }
-                var result = DXD9.DXD9_Present(g_pd3dDevice, nint.Zero, nint.Zero, nint.Zero, nint.Zero);
+                var result = g_pd3dDevice->Present(nint.Zero, nint.Zero, nint.Zero, nint.Zero);
                 if (result == -2005530520)
                     g_DeviceLost = true;
 

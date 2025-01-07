@@ -47,10 +47,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="languages.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
+    <ClInclude Include="exports.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UE\enums.h">
@@ -60,9 +57,6 @@
       <Filter>Header Files\UE</Filter>
     </ClInclude>
     <ClInclude Include="dotnet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

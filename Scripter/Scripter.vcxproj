@@ -107,11 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dotnet.h" />
-    <ClInclude Include="gui.h" />
-    <ClInclude Include="languages.h" />
+    <ClInclude Include="exports.h" />
     <ClInclude Include="UE\enums.h" />
     <ClInclude Include="UE\structs.h" />
-    <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

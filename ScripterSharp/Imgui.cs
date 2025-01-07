@@ -10,8 +10,32 @@ namespace ScripterSharp
 {
     public static class ImGui
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ImVec2
+        {
+            public float x, y;
+
+            public ImVec2(float _x, float _y)
+            {
+                x = _x;
+                y = _y;
+            }
+        }
+        public struct ImVec4
+        {
+            public float x, y, z, w;
+
+            public ImVec4(float _x, float _y, float _z, float _w)
+            {
+                x = _x;
+                y = _y;
+                z = _z;
+                w = _w;
+            }
+        }
+
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowDemoWindow@ImGui@@YAXPEA_N@Z")]
-        public static extern void ShowDemoWindow(ref bool show);
+        public static extern unsafe void ShowDemoWindow(bool* show = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_NewFrame@@YAXXZ")]
         public static extern void ImplDX9_NewFrame();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_NewFrame@@YAXXZ")]
@@ -29,7 +53,7 @@ namespace ScripterSharp
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_Init@@YA_NPEAX@Z")]
         public static extern bool ImplWin32_Init(nint hwnd);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_Init@@YA_NPEAUIDirect3DDevice9@@@Z")]
-        public static extern bool ImplDX9_Init(nint device);
+        public static extern unsafe bool ImplDX9_Init(DXD9.LPDIRECT3DDEVICE9* device);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Render@ImGui@@YAXXZ")]
         public static extern void Render();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetDrawData@ImGui@@YAPEAUImDrawData@@XZ")]
@@ -53,7 +77,47 @@ namespace ScripterSharp
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Text@ImGui@@YAXPEBDZZ")]
         public static extern unsafe void Text([MarshalAs(UnmanagedType.LPStr)] string str);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SmallButton@ImGui@@YA_NPEBD@Z")]
-        public static extern unsafe bool Button([MarshalAs(UnmanagedType.LPStr)] string label, long size = 0); // TODO: Change to real button and add ImVec
+        public static extern unsafe bool SmallButton([MarshalAs(UnmanagedType.LPStr)] string label);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Button@ImGui@@YA_NPEBDAEBUImVec2@@@Z")]
+        public static extern unsafe bool Button([MarshalAs(UnmanagedType.LPStr)] string label, in ImVec2 size = new());
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowMetricsWindow@ImGui@@YAXPEA_N@Z")]
+        public static extern unsafe void ShowMetricsWindow(bool* p_open = null);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowDebugLogWindow@ImGui@@YAXPEA_N@Z")]
+        public static extern unsafe void ShowDebugLogWindow(bool* p_open = null);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowIDStackToolWindow@ImGui@@YAXPEA_N@Z")]
+        public static extern unsafe void ShowIDStackToolWindow(bool* p_open = null);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowAboutWindow@ImGui@@YAXPEA_N@Z")]
+        public static extern unsafe void ShowAboutWindow(bool* p_open = null);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleEditor@ImGui@@YAXPEAUImGuiStyle@@@Z")]
+        public static extern unsafe bool ShowStyleEditor(void* _ref = null);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleSelector@ImGui@@YA_NPEBD@Z")]
+        public static extern unsafe void ShowStyleSelector([MarshalAs(UnmanagedType.LPStr)] string label);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowFontSelector@ImGui@@YAXPEBD@Z")]
+        public static extern unsafe void ShowFontSelector([MarshalAs(UnmanagedType.LPStr)] string label);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowUserGuide@ImGui@@YAXXZ")]
+        public static extern unsafe void ShowUserGuide();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetVersion@ImGui@@YAPEBDXZ")]
+        
+        private static extern unsafe nint _GetVersion();
+        private static string ImGuiVersionStr = "";
+        public static string GetVersion()
+        {
+            if (string.IsNullOrEmpty(ImGuiVersionStr))
+            {
+                var _str = Marshal.PtrToStringAnsi(_GetVersion());
+                if (_str != null)
+                    ImGuiVersionStr = _str;
+            };
+
+            return ImGuiVersionStr;
+        }
+
+
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsLight@ImGui@@YAXPEAUImGuiStyle@@@Z")]
+        public static extern unsafe void StyleColorsLight(nint dst = 0);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsClassic@ImGui@@YAXPEAUImGuiStyle@@@Z")]
+        public static extern unsafe void StyleColorsClassic(nint dst = 0);
+
 
     }
 }
