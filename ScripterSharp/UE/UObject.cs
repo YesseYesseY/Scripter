@@ -19,6 +19,47 @@ namespace ScripterSharp.UE
             }
         }
 
+        public unsafe List<nint> GetAllChildren() // TODO: Make this IEnumerable?
+        {
+            List<nint> ret = new List<nint>();
+            for (var CurrentClass = ClassPrivate; CurrentClass != null; CurrentClass = CurrentClass->SuperStruct)
+            {
+                var Child = CurrentClass->Children;
+
+                if (Child != null)
+                {
+                    var Next = Child->Next;
+
+                    if (Next != null)
+                    {
+                        while (Child != null)
+                        {
+                            ret.Add((nint)Child);
+                            Child = Child->Next;
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public UProperty* GetChildProperty(string name)
+        {
+            foreach (UProperty* child in GetAllChildren())
+            {
+                if (child->GetName() == name)
+                    return child;
+            }
+            return null;
+        }
+
+        public nint GetChildPointer(string name) // i would make this T* GetChildPointer<T>() but that doesnt support pointers!
+        {
+            var Prop = GetChildProperty(name);
+            if (Prop is null) return nint.Zero;
+            return GetPtrOffset(Prop->Offset_Internal);
+        }
+
         public string GetName()
         {
             return NamePrivate.ToString();

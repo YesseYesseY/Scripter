@@ -25,7 +25,7 @@ DWORD WINAPI Main(LPVOID)
         MessageBoxA(0, "Minhook failed to initialize!", "Setup", MB_OK);
         return 0;
     }
-
+    
     if (!Setup())
     {
         MessageBoxA(0, _("Failed!"), _("Setup"), MB_OK);

@@ -5,56 +5,41 @@ namespace ScripterSharp.UE
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UStruct
     {
+        public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(Offsets.SuperStruct);
+        public UField* Children => *(UField**)GetPtrOffset(Offsets.Children);
+        public int PropertiesSize => *(int*)GetPtrOffset(Offsets.PropertiesSize);
+
+        public bool IsA(UObject* Class)
+        {
+            fixed (UStruct* thisPtr = &this)
+            {
+                for (UStruct* Struct = thisPtr; Struct != null; Struct = Struct->SuperStruct)
+                {
+                    if (Struct == Class)
+                        return true;
+                }
+            }
+            return false;
+        }
+        
+        // UField
         private UField _obj;
+        public UField* Next => _obj.Next;
+        
+        
+        
+        // UObject
+
         public void** VFTable => _obj.VFTable;
         public int ObjectFlags => _obj.ObjectFlags;
         public int InternalIndex => _obj.InternalIndex;
         public UStruct* ClassPrivate => _obj.ClassPrivate;
         public FName NamePrivate => _obj.NamePrivate;
         public UObject* OuterPrivate => _obj.OuterPrivate;
-        public UField* Next => _obj.Next;
-        public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(Offsets.SuperStruct);
-        public UField* Children => *(UField**)GetPtrOffset(Offsets.Children);
-        private unsafe List<nint> GetAllChildren() // TODO: Make this IEnumerable?
-        {
-            List<nint> ret = new List<nint>();
-            for (var CurrentClass = ClassPrivate; CurrentClass != null; CurrentClass = CurrentClass->SuperStruct)
-            {
-                var Child = CurrentClass->Children;
 
-                if (Child != null)
-                {
-                    var Next = Child->Next;
-
-                    if (Next != null)
-                    {
-                        while (Child != null)
-                        {
-                            ret.Add((nint)Child);
-                            Child = Child->Next;
-                        }
-                    }
-                }
-            }
-            return ret;
-        }
-
-        public UProperty* GetChildProperty(string name)
-        {
-            foreach (UProperty* child in GetAllChildren())
-            {
-                if (child->GetName() == name)
-                    return child;
-            }
-            return null;
-        }
-
-        public nint GetChildPointer(string name) // i would make this T* GetChildPointer<T>() but that doesnt support pointers!
-        {
-            var Prop = GetChildProperty(name);
-            if (Prop is null) return nint.Zero;
-            return GetPtrOffset(Prop->Offset_Internal);
-        }
+        public List<nint> GetAllChildren() => _obj.GetAllChildren();
+        public UProperty* GetChildProperty(string name) => _obj.GetChildProperty(name);
+        public nint GetChildPointer(string name) => _obj.GetChildPointer(name);
 
         public unsafe nint GetPtrOffset(int offset) => _obj.GetPtrOffset(offset);
         public string GetName() => _obj.GetName();

@@ -13,5 +13,10 @@ namespace ScripterSharp.UE
         public T* Data;
         public int ArrayNum;
         public int ArrayMax;
+
+        public T this[int index]
+        {
+            get => Data[index];
+        }
     }
 }

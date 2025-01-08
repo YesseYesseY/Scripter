@@ -14,6 +14,10 @@ namespace ScripterSharp.UE
         public UObject* OuterPrivate => _obj.OuterPrivate;
         public UField* Next => *(UField**)_obj.GetPtrOffset(40);
 
+        public List<nint> GetAllChildren() => _obj.GetAllChildren();
+        public UProperty* GetChildProperty(string name) => _obj.GetChildProperty(name);
+        public nint GetChildPointer(string name) => _obj.GetChildPointer(name);
+
         public unsafe nint GetPtrOffset(int offset) => _obj.GetPtrOffset(offset);
         public string GetName() => _obj.GetName();
         public string GetFullName() => _obj.GetFullName();

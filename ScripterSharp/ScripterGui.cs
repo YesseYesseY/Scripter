@@ -33,6 +33,22 @@ namespace ScripterSharp
         {
             ImGui.ShowDemoWindow();
 
+            if (ImGui.Begin("Window thingy"))
+            {
+                if (ImGui.Button("Dump objects"))
+                {
+                    Scripter.DumpObjects();
+                }
+                if (ImGui.Button("Advanced dump"))
+                {
+                    AdvancedDumper.Dump();
+                }
+            }
+            ImGui.End();
+        }
+
+        private static void TestGui()
+        {
             if (ImGui.Begin("Test window :)"))
             {
                 ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
@@ -135,7 +151,11 @@ namespace ScripterSharp
                 hIconSm = nint.Zero,
             };
             Win32.RegisterClassExW(ref wc);
-            hwnd = Win32.CreateWindowExW(0, wc.lpszClassName, "Scripter from C#", (uint)(0x00000000 | 0x00C00000 | 0x00080000 | 0x0004000L | 0x00020000 | 0x00010000), 100, 100, 1280, 800, nint.Zero, nint.Zero, wc.hInstance, nint.Zero);
+            hwnd = Win32.CreateWindowExW(0, wc.lpszClassName, "Scripter from C#", 0, 100, 100, 1280, 800, nint.Zero, nint.Zero, wc.hInstance, nint.Zero);
+
+            // Removes border, titlebar, etc
+            // Win32.SetWindowLongW(hwnd, -16, 0);
+            // Win32.SetWindowPos(hwnd, nint.Zero, 100, 100, 1280, 800, 0x0020);
 
             if (!CreateDeviceD3D())
             {
@@ -143,7 +163,6 @@ namespace ScripterSharp
                 Win32.UnregisterClassW(wc.lpszClassName, wc.hInstance);
                 return;
             }
-
             Win32.ShowWindow(hwnd, 10);
             Win32.UpdateWindow(hwnd);
 

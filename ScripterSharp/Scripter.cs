@@ -147,11 +147,13 @@ namespace ScripterSharp
             {
                 Offsets.SuperStruct = 48;
                 Offsets.Children = 56;
+                Offsets.PropertiesSize = 64;
             }
             if (EngineVersion >= 422)
             {
                 Offsets.SuperStruct = 64;
                 Offsets.Children = 72;
+                Offsets.PropertiesSize = 80;
             }
 
             return true;
@@ -167,11 +169,6 @@ namespace ScripterSharp
                 Print("Failed setup");
                 return;
             }
-
-            //foreach (ProcessModule module in Process.GetCurrentProcess().Modules)
-            //{
-            //    Print($"Found module: {module.FileName}");
-            //}
 
             //DumpObjects();
             CreateConsole();
@@ -198,26 +195,33 @@ namespace ScripterSharp
             public UObject* Return;
         }
 
+        static UObject* SpawnObject(UObject* Class, UObject* Outer)
+        {
+            var GSC = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+            var fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+
+            SpawnObjectParams args = new()
+            {
+                Class = Class,
+                Outer = Outer
+            };
+            GSC->ProcessEvent(fn, &args);
+
+            return args.Return;
+        }
+
         static void CreateConsole()
         {
-            var Engine = (UStruct*)FindObject("FortEngine_");
-            UStruct* GameViewport = *(UStruct**)Engine->GetChildPointer("GameViewport");
+            var Engine = FindObject("FortEngine_");
+            UObject* GameViewport = *(UObject**)Engine->GetChildPointer("GameViewport");
             UObject** ViewportConsole = (UObject**)GameViewport->GetChildPointer("ViewportConsole");
 
             var ConsoleClass = FindObject("Class /Script/Engine.Console");
-            var GSC = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-            var fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
-            
-            SpawnObjectParams args = new()
-            {
-                Class = ConsoleClass,
-                Outer = (UObject*)GameViewport
-            };
-            GSC->ProcessEvent(fn, &args);
-            *ViewportConsole = args.Return;
+
+            *ViewportConsole = SpawnObject(ConsoleClass, GameViewport);
         }
 
-        static void DumpObjects()
+        public static void DumpObjects()
         {
             string objFilePath = "C:/FN/obj.txt";
             Print($"Writing ~{Objects.Num} objects to {objFilePath}");

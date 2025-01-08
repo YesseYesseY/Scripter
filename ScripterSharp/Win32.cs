@@ -66,6 +66,10 @@ namespace ScripterSharp
         [DllImport("user32.dll")]
         public static unsafe extern long DispatchMessageW(ref MSG lpMsg);
         [DllImport("user32.dll")]
+        public static unsafe extern int SetWindowLongW(nint hwnd, int nIndex, int dwNewLong);
+        [DllImport("user32.dll")]
+        public static unsafe extern int SetWindowPos(nint hwnd, nint hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        [DllImport("user32.dll")]
         public static extern nint RegisterClassExW(ref WNDCLASSEXW unnamedParam1); // Great choice of name microsoft
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern nint CreateWindowExW(uint dwExStyle, [MarshalAs(UnmanagedType.LPWStr)]string lpClassName, [MarshalAs(UnmanagedType.LPWStr)]string lpWindowName, uint dwStyle,
