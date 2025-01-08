@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ScripterSharp.UE
 {
@@ -12,7 +13,7 @@ namespace ScripterSharp.UE
         public UStruct* ClassPrivate => _obj.ClassPrivate;
         public FName NamePrivate => _obj.NamePrivate;
         public UObject* OuterPrivate => _obj.OuterPrivate;
-        public UField* Next => *(UField**)_obj.GetPtrOffset(40);
+        public UField* Next => *(UField**)((byte*)Unsafe.AsPointer(ref this) + 40); // *(UField**)_obj.GetPtrOffset(40);
 
         public List<nint> GetAllChildren() => _obj.GetAllChildren();
         public UProperty* GetChildProperty(string name) => _obj.GetChildProperty(name);

@@ -65,10 +65,10 @@ namespace ScripterSharp
             //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.ByteProperty"),   "byte");
             SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.BoolProperty"),   "bool");
             SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.NameProperty"),   "FName");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.DelegateProperty"), "DelegateProperty");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastDelegateProperty"),   "MulticastDelegateProperty");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastInlineDelegateProperty"),   "MulticastInlineDelegateProperty");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastSparseDelegateProperty"),   "MulticastSparseDelegateProperty");
+            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.DelegateProperty"), "DelegateProperty");
+            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastDelegateProperty"),   "MulticastDelegateProperty");
+            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastInlineDelegateProperty"),   "MulticastInlineDelegateProperty");
+            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastSparseDelegateProperty"),   "MulticastSparseDelegateProperty");
             SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.StrProperty"),   "FString");
             
             PropertySize = ((UStruct*)UPropertyClass)->PropertiesSize;
@@ -77,7 +77,7 @@ namespace ScripterSharp
 
 
             foreach (UObject* Obj in
-#if false
+#if true
                 Scripter.Objects
 #else
                 new UObject*[] {
@@ -142,8 +142,18 @@ namespace ScripterSharp
                             var ChildAsProperty = (UProperty*)Child;
                             var (ChildType, Notes) = GetType((UObject*)Child);
 
-                            sb.Append($"\t[FieldOffset({ChildAsProperty->Offset_Internal})] ");
-                            sb.Append(ChildType).Append(" ").Append(ChildName).Append("; // Size: ").Append(ChildAsProperty->ElementSize).Append(", ClassPrivate: ").Append(Child->ClassPrivate->GetName());
+                            sb.Append("\t");
+                            if (ChildType == "UNKNOWN_TYPE")
+                            {
+                                sb.Append("// ");
+                                ChildType = Child->ClassPrivate->GetName();
+                            }
+                            //sb.Append($"\t[FieldOffset({ChildAsProperty->Offset_Internal})] public ");
+                            // *(UField**)((byte*)Unsafe.AsPointer(ref this) + 40);
+                            var OffsetStr = $"*({ChildType}*)((byte*)Unsafe.AsPointer(ref this) + {ChildAsProperty->Offset_Internal})";
+                            sb.Append("public ").Append(ChildType).Append(' ').Append(ChildName).Append(" { get => ").Append(OffsetStr).Append("; set => ").Append(OffsetStr).Append(" = value; } // Size: ")
+                                .Append(ChildAsProperty->ElementSize).Append(", ClassPrivate: ").Append(Child->ClassPrivate->GetName());
+
                             if (Notes != null)
                                 sb.Append(", Notes: ").Append(Notes);
                         }
@@ -212,14 +222,14 @@ namespace ScripterSharp
 #endif
                     }
                 }
-                else if (Child->ClassPrivate->IsA(UMapPropertyClass))
-                {
-                    var Key = *(UObject**)Child->GetPtrOffset(PropertySize);
-                    var Value = *(UObject**)Child->GetPtrOffset(PropertySize + 8);
-                    var (KeyType, KeyNotes) = GetType(Key);
-                    var (ValueType, ValueNotes) = GetType(Value);
-                    ChildType = $"TMap<{KeyType},{ValueType}{(KeyNotes == null ? "" : $" /* {KeyNotes}, {ValueNotes} */")}>";
-                }
+                //else if (Child->ClassPrivate->IsA(UMapPropertyClass))
+                //{
+                //    var Key = *(UObject**)Child->GetPtrOffset(PropertySize);
+                //    var Value = *(UObject**)Child->GetPtrOffset(PropertySize + 8);
+                //    var (KeyType, KeyNotes) = GetType(Key);
+                //    var (ValueType, ValueNotes) = GetType(Value);
+                //    ChildType = $"TMap<{KeyType},{ValueType}{(KeyNotes == null ? "" : $" /* {KeyNotes}, {ValueNotes} */")}>";
+                //}
                 else if (Child->ClassPrivate->IsA(UArrayPropertyClass))
                 {
                     var ObjPropType = *(UObject**)Child->GetPtrOffset(PropertySize);

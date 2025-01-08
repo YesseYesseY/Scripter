@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using ScripterSharp.UE;
@@ -179,6 +181,7 @@ namespace ScripterSharp
             //});
         }
 
+
         static void DumpOffsets<T>()
         {
             foreach (var field in typeof(T).GetFields())
@@ -209,16 +212,20 @@ namespace ScripterSharp
 
             return args.Return;
         }
+        struct UEngine
+        {
+            public UGameViewportClient* GameViewport { get => *(UGameViewportClient**)((byte*)Unsafe.AsPointer(ref this) + 1872); set => *(UGameViewportClient**)((byte*)Unsafe.AsPointer(ref this) + 1872) = value; }
+        }
+        struct UGameViewportClient
+        {
+            public UObject* ViewportConsole { get => *(UObject**)((byte*)Unsafe.AsPointer(ref this) + 64); set => *(UObject**)((byte*)Unsafe.AsPointer(ref this) + 64) = value; }
+        }
 
         static void CreateConsole()
         {
-            var Engine = FindObject("FortEngine_");
-            UObject* GameViewport = *(UObject**)Engine->GetChildPointer("GameViewport");
-            UObject** ViewportConsole = (UObject**)GameViewport->GetChildPointer("ViewportConsole");
-
+            var Engine = (UEngine*)FindObject("FortEngine_");
             var ConsoleClass = FindObject("Class /Script/Engine.Console");
-
-            *ViewportConsole = SpawnObject(ConsoleClass, GameViewport);
+            Engine->GameViewport->ViewportConsole = SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
         }
 
         public static void DumpObjects()
