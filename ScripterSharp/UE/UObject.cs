@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 namespace ScripterSharp.UE
 {
     [StructLayout(LayoutKind.Sequential)]
@@ -51,6 +52,13 @@ namespace ScripterSharp.UE
                     return child;
             }
             return null;
+        }
+
+        public int GetChildOffset(string name)
+        {
+            var Prop = GetChildProperty(name);
+            if (Prop is null) return -1;
+            return Prop->Offset_Internal;
         }
 
         public nint GetChildPointer(string name) // i would make this T* GetChildPointer<T>() but that doesnt support pointers!

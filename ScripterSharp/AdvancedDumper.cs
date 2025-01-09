@@ -1,6 +1,7 @@
 ﻿// TODO: Make these runtime options?
 // #define UseTypeClassNames // Use UInt8 instead of byte, etc.
 // #define UseIntPtrInsteadOfPointer
+#define DynamicOffsets // Replace offset in fields with _obj.GetChildOffset()
 
 using System.Text;
 using ScripterSharp.UE;
@@ -131,6 +132,9 @@ namespace ScripterSharp
                         sb.Append(" // : U").Append(ObjAsStruct->SuperStruct->GetName());
                     }
                     sb.Append("\n{\n");
+#if DynamicOffsets
+                    sb.Append("\t[FieldOffset(0)] private UObject _obj;\n\n");
+#endif
 
                     for (var Child = ObjAsStruct->Children; Child != null; Child = Child->Next)
                     {
@@ -148,11 +152,15 @@ namespace ScripterSharp
                                 sb.Append("// ");
                                 ChildType = Child->ClassPrivate->GetName();
                             }
-                            //sb.Append($"\t[FieldOffset({ChildAsProperty->Offset_Internal})] public ");
-                            // *(UField**)((byte*)Unsafe.AsPointer(ref this) + 40);
-                            var OffsetStr = $"*({ChildType}*)((byte*)Unsafe.AsPointer(ref this) + {ChildAsProperty->Offset_Internal})";
-                            sb.Append("public ").Append(ChildType).Append(' ').Append(ChildName).Append(" { get => ").Append(OffsetStr).Append("; set => ").Append(OffsetStr).Append(" = value; } // Size: ")
-                                .Append(ChildAsProperty->ElementSize).Append(", ClassPrivate: ").Append(Child->ClassPrivate->GetName());
+
+#if !DynamicOffsets
+                            var OffsetStr = $"*({ChildType}*)_obj.GetPtrOffset({ChildAsProperty->Offset_Internal})";
+#else
+                            var OffsetStr = $"*({ChildType}*)_obj.GetPtrOffset(_{ChildName} == -1 ? _obj.GetChildOffset(\"{ChildName}\") : _{ChildName})";
+                            sb.Append("private static int _").Append(ChildName).Append(" = -1;\n\t");
+#endif
+                            sb.Append("public ").Append(ChildType).Append(' ').Append(ChildName).Append("\n\t{\n\t\tget => ");
+                            sb.Append(OffsetStr).Append(";\n\t\tset => ").Append(OffsetStr).Append(" = value;\n\t}\n");
 
                             if (Notes != null)
                                 sb.Append(", Notes: ").Append(Notes);
@@ -247,6 +255,8 @@ TODO:
 Bitfield in BoolProperty,
 Function return values + params
 Enum type ( enum Name : {this type} )
+Add TMap<T, T2> to the main project
+Dumper settings
 Checkout classes below:
     Class /Script/CoreUObject.NumericProperty
     Class /Script/CoreUObject.ClassProperty

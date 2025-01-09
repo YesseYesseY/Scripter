@@ -212,13 +212,32 @@ namespace ScripterSharp
 
             return args.Return;
         }
+        [StructLayout(LayoutKind.Explicit)]
         struct UEngine
         {
-            public UGameViewportClient* GameViewport { get => *(UGameViewportClient**)((byte*)Unsafe.AsPointer(ref this) + 1872); set => *(UGameViewportClient**)((byte*)Unsafe.AsPointer(ref this) + 1872) = value; }
+            [FieldOffset(0)] private UObject _obj;
+
+            private static int _GameViewport = -1;
+            public UGameViewportClient* GameViewport
+            {
+                get => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _obj.GetChildOffset("GameViewport") : _GameViewport);
+                set => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _obj.GetChildOffset("GameViewport") : _GameViewport) = value;
+            }
+
+
         }
+        [StructLayout(LayoutKind.Explicit)]
         struct UGameViewportClient
         {
-            public UObject* ViewportConsole { get => *(UObject**)((byte*)Unsafe.AsPointer(ref this) + 64); set => *(UObject**)((byte*)Unsafe.AsPointer(ref this) + 64) = value; }
+            [FieldOffset(0)] private UObject _obj;
+            
+            private static int _ViewportConsole = -1;
+            public UObject* ViewportConsole
+            {
+                get => *(UObject**)_obj.GetPtrOffset(_ViewportConsole == -1 ? _obj.GetChildOffset("ViewportConsole") : _ViewportConsole);
+                set => *(UObject**)_obj.GetPtrOffset(_ViewportConsole == -1 ? _obj.GetChildOffset("ViewportConsole") : _ViewportConsole) = value;
+            }
+
         }
 
         static void CreateConsole()
