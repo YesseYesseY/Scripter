@@ -10,6 +10,36 @@ namespace ScripterSharp
 {
     public static unsafe class AdvancedDumper
     {
+        private struct DumperField
+        {
+            public string Type;
+            public string Name;
+
+            public string Functionality()
+            {
+                return $"*({Type}*)_obj.GetPtrOffset(_{Name} == -1 ? _obj.GetChildOffset(\"{Name}\") : _{Name})";
+            }
+        }
+
+        private struct DumperFunction
+        {
+            public DumperFunction()
+            {
+                ReturnParam = null;
+                Params = new List<DumperField>();
+                AllParams = new List<DumperField>();
+                Name = "";
+                FullName = "";
+            }
+
+            public string Name;
+            public string FullName;
+
+            public List<DumperField> Params;
+            public List<DumperField> AllParams;
+            public DumperField? ReturnParam;
+        }
+
         private static UObject* UClassClass;
         private static UObject* UFunctionClass;
         private static UObject* UPropertyClass;
@@ -78,22 +108,24 @@ namespace ScripterSharp
 
 
             foreach (UObject* Obj in
-#if true
+#if false
                 Scripter.Objects
 #else
                 new UObject*[] {
-                    Scripter.FindObject("Class /Script/FortniteGame.FortPlayerPawnAthena"),
+                    //Scripter.FindObject("Class /Script/FortniteGame.FortPlayerPawnAthena"),
                     Scripter.FindObject("Class /Script/FortniteGame.FortPlayerPawn"),
-                    Scripter.FindObject("Class /Script/FortniteGame.FortPawn"),
-                    Scripter.FindObject("Enum /Script/FortniteGame.EFortResourceLevel"),
-                    Scripter.FindObject("Enum /Script/FortniteGame.EFortTeam"),
-                    Scripter.FindObject("Enum /Script/FortniteGame.EFortPlaylistType"),
-                    Scripter.FindObject("Enum /Script/FortniteGame.EAthenaGamePhase"),
-                    Scripter.FindObject("ScriptStruct /Script/CoreUObject.Guid"),
+                    //Scripter.FindObject("Class /Script/FortniteGame.FortPawn"),
+                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortResourceLevel"),
+                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortTeam"),
+                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortPlaylistType"),
+                    //Scripter.FindObject("Enum /Script/FortniteGame.EAthenaGamePhase"),
+                    //Scripter.FindObject("ScriptStruct /Script/CoreUObject.Guid"),
+                    Scripter.FindObject("Class /Script/Engine.GameplayStatics"),
                 }
 #endif
                 )
             {
+                if (Obj == null) continue;
                 StringBuilder sb = new StringBuilder();
                 string folder = "";
                 string ObjName = Obj->GetName();
@@ -135,6 +167,8 @@ namespace ScripterSharp
 #if DynamicOffsets
                     sb.Append("\t[FieldOffset(0)] private UObject _obj;\n\n");
 #endif
+                    List<DumperField> fields = new List<DumperField>();
+                    List<DumperFunction> funcs = new List<DumperFunction>();
 
                     for (var Child = ObjAsStruct->Children; Child != null; Child = Child->Next)
                     {
@@ -143,31 +177,106 @@ namespace ScripterSharp
 
                         if (IsAProperty)
                         {
-                            var ChildAsProperty = (UProperty*)Child;
                             var (ChildType, Notes) = GetType((UObject*)Child);
 
-                            sb.Append("\t");
-                            if (ChildType == "UNKNOWN_TYPE")
+                            fields.Add(new DumperField
                             {
-                                sb.Append("// ");
-                                ChildType = Child->ClassPrivate->GetName();
-                            }
-
-#if !DynamicOffsets
-                            var OffsetStr = $"*({ChildType}*)_obj.GetPtrOffset({ChildAsProperty->Offset_Internal})";
-#else
-                            var OffsetStr = $"*({ChildType}*)_obj.GetPtrOffset(_{ChildName} == -1 ? _obj.GetChildOffset(\"{ChildName}\") : _{ChildName})";
-                            sb.Append("private static int _").Append(ChildName).Append(" = -1;\n\t");
-#endif
-                            sb.Append("public ").Append(ChildType).Append(' ').Append(ChildName).Append("\n\t{\n\t\tget => ");
-                            sb.Append(OffsetStr).Append(";\n\t\tset => ").Append(OffsetStr).Append(" = value;\n\t}\n");
-
-                            if (Notes != null)
-                                sb.Append(", Notes: ").Append(Notes);
+                                Name = ChildName,
+                                Type = ChildType
+                            });
                         }
                         else
                         {
-                            sb.Append("\tvoid ").Append(ChildName).Append("();");
+                            var DumperFunc = new DumperFunction()
+                            {
+                                Name = ChildName,
+                                FullName = Child->GetFullName()
+                            };
+                            for (var FuncChild = ((UStruct*)Child)->Children; FuncChild != null; FuncChild = FuncChild->Next)
+                            {
+                                var FuncChildAsProperty = (UProperty*)FuncChild;
+                                var (FuncChildType, FuncChildNotes) = GetType((UObject*)FuncChild);
+                                var field = new DumperField
+                                {
+                                    Name = FuncChild->GetName(),
+                                    Type = FuncChildType
+                                };
+                                DumperFunc.AllParams.Add(field);
+                                if (FuncChildAsProperty->PropertyFlags.HasFlag(EPropertyFlags.CPF_ReturnParm))
+                                {
+                                    DumperFunc.ReturnParam = field;
+                                }
+                                else
+                                {
+                                    DumperFunc.Params.Add(field);
+                                }
+                            }
+
+                            funcs.Add(DumperFunc);
+                        }
+                    }
+
+                    // TODO: MAKE THIS READABLE
+
+                    foreach (var field in fields)
+                    {
+                        sb.Append($"\tprivate static int _{field.Name} = -1;\n"); // TODO: Remove line for setting NoFunctionality
+                        sb.Append($"\tpublic {field.Type} {field.Name}"); // TODO: Add ; for setting NoFucntionality
+                        sb.Append("\n\t{{\n\t\tget => {field.Functionality()};\n\t\tset => {field.Functionality()} = value;\n\t}}\n"); // TODO: Remove line for setting NoFunctionality
+                    }
+
+                    sb.Append('\n');
+
+                    foreach (var func in funcs)
+                    {
+                        sb.Append($"\t// ----FUNCTION_{func.Name}----\n");
+                        if (func.AllParams.Count > 0)
+                        {
+                            sb.Append("\t[StructLayout(LayoutKind.Sequential)]\n");
+                            sb.Append($"\tprivate struct Params_{func.Name}\n\t{{\n");
+                            foreach (var param in func.Params)
+                            {
+                                sb.Append($"\t\tpublic {param.Type} {param.Name};\n");
+                            }
+                            if (func.ReturnParam != null)
+                                sb.Append($"\t\tpublic {func.ReturnParam.Value.Type} {func.ReturnParam.Value.Name};\n");
+                            sb.Append("\t}\n");
+                        }
+                        sb.Append($"\tprivate static UObject* Func_{func.Name};\n");
+                        var returnType = func.ReturnParam == null ? "void" : func.ReturnParam.Value.Type;
+                        sb.Append($"\tpublic {returnType} {func.Name}(");
+                        for (int i = 0; i < func.Params.Count; i++)
+                        {
+                            var param = func.Params[i];
+                            sb.Append($"{param.Type} {param.Name}");
+                            if (func.Params.Count - 1 != i) sb.Append(", ");
+                        }
+                        sb.Append(')');
+                        if (false) // For setting NoFunctionality
+                        {
+                            sb.Append(';');
+                        }
+                        else
+                        {
+                            sb.Append("\n\t{\n");
+                            if (func.AllParams.Count > 0)
+                            {
+                                sb.Append($"\t\tvar args = new Params_{func.Name}();\n");
+                                foreach (var param in func.Params)
+                                {
+                                    sb.Append($"\t\targs.{param.Name} = {param.Name};\n");
+                                }
+                            }
+                            sb.Append($"\t\tif (Func_{func.Name} == null) Func_{func.Name} = Scripter.FindObject(\"{func.FullName}\");\n");
+                            sb.Append($"\t\t_obj.ProcessEvent(Func_{func.Name}, ");
+                            if (func.AllParams.Count > 0)
+                                sb.Append("&args);\n");
+                            else
+                                sb.Append("null);\n");
+
+                            if (func.ReturnParam != null)
+                                sb.Append($"\t\treturn args.{func.ReturnParam.Value.Name};\n");
+                            sb.Append("\t}");
                         }
                         sb.Append('\n');
                     }

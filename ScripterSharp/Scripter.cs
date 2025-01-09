@@ -158,6 +158,11 @@ namespace ScripterSharp
                 Offsets.PropertiesSize = 80;
             }
 
+            // From what i can see UFunction barely changes between versions, so why not go based off UStruct
+            var UStructClass = (UStruct*)FindObject("Class /Script/CoreUObject.Struct");
+            var StructSize = UStructClass->PropertiesSize;
+            Offsets.FunctionFlags = StructSize;
+
             return true;
         }
 
@@ -189,29 +194,30 @@ namespace ScripterSharp
                 Print($"{field.Name}: {Marshal.OffsetOf<T>(field.Name)}");
             }
         }
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct SpawnObjectParams
+        [StructLayout(LayoutKind.Explicit, Size = 40)]
+        public struct UGameplayStatics // : UBlueprintFunctionLibrary
         {
-            public UObject* Class;
-            public UObject* Outer;
-            public UObject* Return;
-        }
+            [FieldOffset(0)] private UObject _obj;
 
-        static UObject* SpawnObject(UObject* Class, UObject* Outer)
-        {
-            var GSC = FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-            var fn = FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
-
-            SpawnObjectParams args = new()
+            [StructLayout(LayoutKind.Sequential)]
+            private struct Params_SpawnObject
             {
-                Class = Class,
-                Outer = Outer
-            };
-            GSC->ProcessEvent(fn, &args);
-
-            return args.Return;
+                public UObject* ObjectClass;
+                public UObject* Outer;
+                public UObject* ReturnValue;
+            }
+            private static UObject* Func_SpawnObject;
+            public UObject* SpawnObject(UObject* ObjectClass, UObject* Outer)
+            {
+                var args = new Params_SpawnObject();
+                args.ObjectClass = ObjectClass;
+                args.Outer = Outer;
+                if (Func_SpawnObject == null) Func_SpawnObject = Scripter.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+                _obj.ProcessEvent(Func_SpawnObject, &args);
+                return args.ReturnValue;
+            }
         }
+
         [StructLayout(LayoutKind.Explicit)]
         struct UEngine
         {
@@ -220,11 +226,9 @@ namespace ScripterSharp
             private static int _GameViewport = -1;
             public UGameViewportClient* GameViewport
             {
-                get => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _obj.GetChildOffset("GameViewport") : _GameViewport);
-                set => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _obj.GetChildOffset("GameViewport") : _GameViewport) = value;
+                get => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _GameViewport = _obj.GetChildOffset("GameViewport") : _GameViewport);
+                set => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _GameViewport = _obj.GetChildOffset("GameViewport") : _GameViewport) = value;
             }
-
-
         }
         [StructLayout(LayoutKind.Explicit)]
         struct UGameViewportClient
@@ -243,8 +247,9 @@ namespace ScripterSharp
         static void CreateConsole()
         {
             var Engine = (UEngine*)FindObject("FortEngine_");
+            var GSC = (UGameplayStatics*)FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
             var ConsoleClass = FindObject("Class /Script/Engine.Console");
-            Engine->GameViewport->ViewportConsole = SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
+            Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
         }
 
         public static void DumpObjects()

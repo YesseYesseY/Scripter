@@ -11,5 +11,7 @@ namespace ScripterSharp
         public static int SuperStruct;
         public static int Children;
         public static int PropertiesSize;
+
+        public static int FunctionFlags;
     }
 }
