@@ -89,6 +89,16 @@ namespace ScripterSharp.UE
                 Natives.ProcessEvent(ptr, func, args);
             }
         }
+
+        public static ObjectArray Objects;
+        public static unsafe UObject* FindObject(string name)
+        {
+            foreach (UObject* obj in Objects)
+            {
+                if (obj->GetFullName().Contains(name)) return obj;
+            }
+            return null;
+        }
     }
 
 }

@@ -13,11 +13,6 @@ namespace fs = std::filesystem;
 
 DWORD WINAPI Main(LPVOID)
 {
-    AllocConsole();
-
-    FILE* file;
-    freopen_s(&file, "CONOUT$", "w", stdout);
-
     DotNet::Init();
 
     if (MH_Initialize() != MH_OK)

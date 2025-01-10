@@ -54,11 +54,11 @@ namespace ScripterSharp
                 ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
                 if (ImGui.Button("Test button"))
                 {
-                    Scripter.Print("\"Hello there\" -button 2024");
+                    Logger.Log("\"Hello there\" -button 2024");
                 }
                 if (ImGui.SmallButton("Test small button"))
                 {
-                    Scripter.Print("\"Hello there\" -small button 2024");
+                    Logger.Log("\"Hello there\" -small button 2024");
                 }
                 ImGui.End();
             }

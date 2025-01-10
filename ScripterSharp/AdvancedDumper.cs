@@ -61,66 +61,66 @@ namespace ScripterSharp
             Directory.CreateDirectory($"{path}classes");
             Directory.CreateDirectory($"{path}enums");
             Directory.CreateDirectory($"{path}structs");
-            UClassClass = Scripter.FindObject("Class /Script/CoreUObject.Class");
-            UFunctionClass = Scripter.FindObject("Class /Script/CoreUObject.Function");
-            UPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.Property");
-            UObjectPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.ObjectProperty");
-            UStructPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.StructProperty");
-            UArrayPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.ArrayProperty");
-            UEnumPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.EnumProperty");
-            UMapPropertyClass = Scripter.FindObject("Class /Script/CoreUObject.MapProperty");
-            UBytePropertyClass = Scripter.FindObject("Class /Script/CoreUObject.ByteProperty");
-            UEnumClass = Scripter.FindObject("Class /Script/CoreUObject.Enum");
-            UStructClass = Scripter.FindObject("Class /Script/CoreUObject.Struct");
+            UClassClass = UObject.FindObject("Class /Script/CoreUObject.Class");
+            UFunctionClass = UObject.FindObject("Class /Script/CoreUObject.Function");
+            UPropertyClass = UObject.FindObject("Class /Script/CoreUObject.Property");
+            UObjectPropertyClass = UObject.FindObject("Class /Script/CoreUObject.ObjectProperty");
+            UStructPropertyClass = UObject.FindObject("Class /Script/CoreUObject.StructProperty");
+            UArrayPropertyClass = UObject.FindObject("Class /Script/CoreUObject.ArrayProperty");
+            UEnumPropertyClass = UObject.FindObject("Class /Script/CoreUObject.EnumProperty");
+            UMapPropertyClass = UObject.FindObject("Class /Script/CoreUObject.MapProperty");
+            UBytePropertyClass = UObject.FindObject("Class /Script/CoreUObject.ByteProperty");
+            UEnumClass = UObject.FindObject("Class /Script/CoreUObject.Enum");
+            UStructClass = UObject.FindObject("Class /Script/CoreUObject.Struct");
 
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.DoubleProperty"), "double");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.FloatProperty"),  "float");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.DoubleProperty"), "double");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.FloatProperty"),  "float");
 #if !UseTypeClassNames
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int8Property"),   "sbyte");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int16Property"),  "short");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.IntProperty"),    "int");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int64Property"),  "long");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt16Property"), "ushort");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt32Property"), "uint");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt64Property"), "ulong");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int8Property"),   "sbyte");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int16Property"),  "short");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.IntProperty"),    "int");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int64Property"),  "long");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt16Property"), "ushort");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt32Property"), "uint");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt64Property"), "ulong");
 #else
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int8Property"), "Int8");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int16Property"), "Int16");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.IntProperty"), "Int32");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.Int64Property"), "Int64");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt16Property"), "UInt16");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt32Property"), "UInt32");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.UInt64Property"), "UInt64");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int8Property"), "Int8");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int16Property"), "Int16");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.IntProperty"), "Int32");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.Int64Property"), "Int64");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt16Property"), "UInt16");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt32Property"), "UInt32");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.UInt64Property"), "UInt64");
 #endif
 
-            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.ByteProperty"),   "byte");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.BoolProperty"),   "bool");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.NameProperty"),   "FName");
-            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.DelegateProperty"), "DelegateProperty");
-            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastDelegateProperty"),   "MulticastDelegateProperty");
-            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastInlineDelegateProperty"),   "MulticastInlineDelegateProperty");
-            //SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.MulticastSparseDelegateProperty"),   "MulticastSparseDelegateProperty");
-            SimplePropertyTypes.Add((nint)Scripter.FindObject("Class /Script/CoreUObject.StrProperty"),   "FString");
+            //SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.ByteProperty"),   "byte");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.BoolProperty"),   "bool");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.NameProperty"),   "FName");
+            //SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.DelegateProperty"), "DelegateProperty");
+            //SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.MulticastDelegateProperty"),   "MulticastDelegateProperty");
+            //SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.MulticastInlineDelegateProperty"),   "MulticastInlineDelegateProperty");
+            //SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.MulticastSparseDelegateProperty"),   "MulticastSparseDelegateProperty");
+            SimplePropertyTypes.Add((nint)UObject.FindObject("Class /Script/CoreUObject.StrProperty"),   "FString");
             
             PropertySize = ((UStruct*)UPropertyClass)->PropertiesSize;
-            Scripter.Print($"PropertySize is {PropertySize}");
+            Logger.Log($"PropertySize is {PropertySize}");
 
 
 
             foreach (UObject* Obj in
 #if false
-                Scripter.Objects
+                UObject.Objects
 #else
                 new UObject*[] {
-                    //Scripter.FindObject("Class /Script/FortniteGame.FortPlayerPawnAthena"),
-                    Scripter.FindObject("Class /Script/FortniteGame.FortPlayerPawn"),
-                    //Scripter.FindObject("Class /Script/FortniteGame.FortPawn"),
-                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortResourceLevel"),
-                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortTeam"),
-                    //Scripter.FindObject("Enum /Script/FortniteGame.EFortPlaylistType"),
-                    //Scripter.FindObject("Enum /Script/FortniteGame.EAthenaGamePhase"),
-                    //Scripter.FindObject("ScriptStruct /Script/CoreUObject.Guid"),
-                    Scripter.FindObject("Class /Script/Engine.GameplayStatics"),
+                    //UObject.FindObject("Class /Script/FortniteGame.FortPlayerPawnAthena"),
+                    UObject.FindObject("Class /Script/FortniteGame.FortPlayerPawn"),
+                    //UObject.FindObject("Class /Script/FortniteGame.FortPawn"),
+                    //UObject.FindObject("Enum /Script/FortniteGame.EFortResourceLevel"),
+                    //UObject.FindObject("Enum /Script/FortniteGame.EFortTeam"),
+                    //UObject.FindObject("Enum /Script/FortniteGame.EFortPlaylistType"),
+                    //UObject.FindObject("Enum /Script/FortniteGame.EAthenaGamePhase"),
+                    //UObject.FindObject("ScriptStruct /Script/CoreUObject.Guid"),
+                    UObject.FindObject("Class /Script/Engine.GameplayStatics"),
                 }
 #endif
                 )
@@ -289,7 +289,7 @@ namespace ScripterSharp
                     File.WriteAllText($"{path}{folder}\\{ObjName}.cs", finalStr);
             }
 
-            Scripter.Print("Finished dumping :)");
+            Logger.Log("Finished dumping :)");
         }
 
         public static (string, string?) GetType(UObject* Child)

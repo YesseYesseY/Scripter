@@ -77,5 +77,7 @@ namespace ScripterSharp
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern nint GetModuleHandleW([MarshalAs(UnmanagedType.LPWStr)]string lpModuleName);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        public static extern int AllocConsole();
     }
 }

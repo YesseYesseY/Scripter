@@ -12,25 +12,15 @@ namespace ScripterSharp
 {
     public static class Scripter
     {
-        public static ObjectArray Objects;
-
         public static string FortniteVersionString = "";
         public static double FortniteVersion;
         public static string EngineVersionString = "";
         public static double EngineVersion;
 
-        public static void Print(string str) => Natives.CSharpPrint(str);
         public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false) => new nint(Natives.FindPatternC(signature, bRelative, offset, bIsVar));
-        public static unsafe void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
+        private static unsafe void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
 
-        public static unsafe UObject* FindObject(string name)
-        {
-            foreach (UObject* obj in Objects)
-            {
-                if (obj->GetFullName().Contains(name)) return obj;
-            }
-            return null;
-        }
+        
 
         static List<Delegate> yestes = new List<Delegate>(); 
         private static unsafe bool Setup()
@@ -38,7 +28,7 @@ namespace ScripterSharp
             var GetEngineAddr = FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
             if (GetEngineAddr == nint.Zero)
             {
-                Print("Couldn't find GetEngineVersion");
+                Logger.Error("Couldn't find GetEngineVersion");
                 return false;
             }
             delegate*<FString> GetEngineVersion = (delegate*<FString>)GetEngineAddr;
@@ -58,9 +48,9 @@ namespace ScripterSharp
                 }
                 catch (Exception e)
                 {
-                    Print(e.Message);
-                    Print(FortniteVersionString);
-                    Print(EngineVersionString);
+                    Logger.Error(e.Message);
+                    Logger.Error(FortniteVersionString);
+                    Logger.Error(EngineVersionString);
                     return false;
                 }
 
@@ -126,24 +116,24 @@ namespace ScripterSharp
 
             if (FNameToStringAddr == nint.Zero)
             {
-                Print("Failed to find FNameToString");
+                Logger.Error("Failed to find FNameToString");
                 return false;
             }
             if (ProcessEventAddr == nint.Zero)
             {
-                Print("Failed to find ProcessEvent");
+                Logger.Error("Failed to find ProcessEvent");
                 return false;
             }
             if (ObjectsAddr == nint.Zero)
             {
-                Print("Failed to find Objects");
+                Logger.Error("Failed to find Objects");
                 return false;
             }
 
 
             Natives.FNameToString = (delegate*<FName*, FString*, void>)FNameToStringAddr;
             Natives.ProcessEvent = (delegate*<UObject*, UObject*, void*, void>)ProcessEventAddr;
-            Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
+            UObject.Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
 
             // TODO: Test more versions
             if (EngineVersion >= 420 && EngineVersion <= 421)
@@ -160,7 +150,7 @@ namespace ScripterSharp
             }
 
             // From what i can see UFunction barely changes between versions, so why not go based off UStruct
-            var UStructClass = (UStruct*)FindObject("Class /Script/CoreUObject.Struct");
+            var UStructClass = (UStruct*)UObject.FindObject("Class /Script/CoreUObject.Struct");
             var StructSize = UStructClass->PropertiesSize;
             Offsets.FunctionFlags = StructSize;
 
@@ -174,11 +164,9 @@ namespace ScripterSharp
                         var attrib = (ProcessEventHookAttribute?)Attribute.GetCustomAttribute(method, typeof(ProcessEventHookAttribute));
                         if (attrib != null)
                         {
-                            Print("Found it");
                             var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
-                            //GC.KeepAlive(del);
                             yestes.Add(del); // shoutout garbage collector
-                            AddProcessEventHook(FindObject(attrib.name), del);
+                            AddProcessEventHook(UObject.FindObject(attrib.name), del);
                         }
                     }
                 }
@@ -190,11 +178,14 @@ namespace ScripterSharp
         [UnmanagedCallersOnly]
         public static unsafe void Init() // is basically just Setup() from structs.h
         {
-            Print("Hello from c#");
+            Win32.AllocConsole();
+            Console.SetOut(new StreamWriter(File.Create("CONOUT$")));
+
+            Logger.Log("Hello from c#");
 
             if (!Setup())
             {
-                Print("Failed setup");
+                Logger.Error("Failed setup");
                 return;
             }
 
@@ -206,14 +197,14 @@ namespace ScripterSharp
         [ProcessEventHook("Function /Script/Engine.GameMode.ReadyToStartMatch")]
         static unsafe void TestEventHook(UObject* obj, void* argPtr)
         {
-            Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
+            // Logger.Log($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
         }
 
         static void DumpOffsets<T>()
         {
             foreach (var field in typeof(T).GetFields())
             {
-                Print($"{field.Name}: {Marshal.OffsetOf<T>(field.Name)}");
+                Logger.Log($"{field.Name}: {Marshal.OffsetOf<T>(field.Name)}");
             }
         }
         [StructLayout(LayoutKind.Explicit, Size = 40)]
@@ -234,7 +225,7 @@ namespace ScripterSharp
                 var args = new Params_SpawnObject();
                 args.ObjectClass = ObjectClass;
                 args.Outer = Outer;
-                if (Func_SpawnObject == null) Func_SpawnObject = Scripter.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+                if (Func_SpawnObject == null) Func_SpawnObject = UObject.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
                 _obj.ProcessEvent(Func_SpawnObject, &args);
                 return args.ReturnValue;
             }
@@ -268,24 +259,24 @@ namespace ScripterSharp
 
         static unsafe void CreateConsole()
         {
-            var Engine = (UEngine*)FindObject("FortEngine_");
-            var GSC = (UGameplayStatics*)FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-            var ConsoleClass = FindObject("Class /Script/Engine.Console");
+            var Engine = (UEngine*)UObject.FindObject("FortEngine_");
+            var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+            var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
             Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
         }
 
         public unsafe static void DumpObjects()
         {
             string objFilePath = "C:/FN/obj.txt";
-            Print($"Writing ~{Objects.Num} objects to {objFilePath}");
+            Logger.Log($"Writing ~{UObject.Objects.Num} objects to {objFilePath}");
             using (var stream = File.OpenWrite(objFilePath))
             {
-                foreach (UObject* obj in Objects)
+                foreach (UObject* obj in UObject.Objects)
                 {
                     stream.Write(Encoding.UTF8.GetBytes($"{obj->GetFullName()}\n"));
                 }
             }
-            Print("Finished!");
+            Logger.Log("Finished!");
         }
     }
 }
