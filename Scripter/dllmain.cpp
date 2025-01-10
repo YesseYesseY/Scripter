@@ -16,7 +16,7 @@ DWORD WINAPI Main(LPVOID)
     AllocConsole();
 
     FILE* file;
-    freopen_s(&file, _("CONOUT$"), _("w"), stdout);
+    freopen_s(&file, "CONOUT$", "w", stdout);
 
     DotNet::Init();
 
@@ -28,7 +28,7 @@ DWORD WINAPI Main(LPVOID)
     
     if (!Setup())
     {
-        MessageBoxA(0, _("Failed!"), _("Setup"), MB_OK);
+        MessageBoxA(0, "Failed!", "Setup", MB_OK);
         return 0;
     }
 	

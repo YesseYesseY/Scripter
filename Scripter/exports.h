@@ -18,7 +18,7 @@ extern "C" {
 		std::cout << "[CSharp] " << str << '\n';
 	}
 	
-	DLL_EXPORT void AddProcessEventHook(void* func, void(*csfunc)(UObject*, void*))
+	DLL_EXPORT void AddProcessEventHook(void* func, void(*csfunc)(void*, void*))
 	{
 		ProcessEventHooks[func] = csfunc;
 	}

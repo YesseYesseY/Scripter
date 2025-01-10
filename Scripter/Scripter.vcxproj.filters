@@ -50,9 +50,6 @@
     <ClInclude Include="exports.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UE\enums.h">
-      <Filter>Header Files\UE</Filter>
-    </ClInclude>
     <ClInclude Include="UE\structs.h">
       <Filter>Header Files\UE</Filter>
     </ClInclude>

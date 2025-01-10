@@ -185,7 +185,7 @@ namespace ScripterSharp
             //    Print($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
             //});
         }
-
+        
 
         static void DumpOffsets<T>()
         {
@@ -218,10 +218,10 @@ namespace ScripterSharp
             }
         }
 
-        [StructLayout(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Sequential)]
         struct UEngine
         {
-            [FieldOffset(0)] private UObject _obj;
+            private UObject _obj;
 
             private static int _GameViewport = -1;
             public UGameViewportClient* GameViewport

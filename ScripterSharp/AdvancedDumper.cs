@@ -362,7 +362,6 @@ namespace ScripterSharp
 /*
 TODO:
 Bitfield in BoolProperty,
-Function return values + params
 Enum type ( enum Name : {this type} )
 Add TMap<T, T2> to the main project
 Dumper settings

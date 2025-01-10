@@ -16,9 +16,9 @@ namespace ScripterSharp
         public static extern long CSharpPrint(string signature);
         [DllImport("Scripter.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         public static extern void AddProcessEventHook(void* func, PEHookDelegate csfunc);
-        
-        public delegate void PEHookDelegate(UObject* obj, void* argptr); // for some reason delegate*<UObject*, void*> doesn't work
 
+        public delegate void PEHookDelegate(UObject* obj, void* argptr); // for some reason delegate*<UObject*, void*> doesn't work
+        
         public static unsafe delegate*<FName*, FString*, void> FNameToString;
         public static unsafe delegate*<UObject*, UObject*, void*, void> ProcessEvent;
     }
