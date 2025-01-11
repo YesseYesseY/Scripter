@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScripterSharp
+namespace ScripterSharpCommon
 {
     public static class Offsets
     {

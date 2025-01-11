@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScripterSharp.UE
+namespace ScripterSharpCommon.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct FString

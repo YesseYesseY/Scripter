@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-namespace ScripterSharp.UE
+namespace ScripterSharpCommon.UE
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UObject

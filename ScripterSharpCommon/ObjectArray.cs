@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ScripterSharp.UE;
+using ScripterSharpCommon.UE;
 
-namespace ScripterSharp
+namespace ScripterSharpCommon
 {
     public unsafe class ObjectArray : IEnumerable<nint>
     {

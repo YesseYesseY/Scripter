@@ -4,7 +4,8 @@
 #define DynamicOffsets // Replace offset in fields with _obj.GetChildOffset()
 
 using System.Text;
-using ScripterSharp.UE;
+using ScripterSharpCommon.UE;
+using ScripterSharpCommon;
 
 namespace ScripterSharp
 {

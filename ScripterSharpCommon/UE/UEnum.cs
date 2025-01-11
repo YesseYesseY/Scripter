@@ -1,27 +1,16 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace ScripterSharp.UE
+namespace ScripterSharpCommon.UE
 {
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct UStruct
+    public unsafe struct UEnum
     {
-        public UStruct* SuperStruct => *(UStruct**)GetPtrOffset(Offsets.SuperStruct);
-        public UField* Children => *(UField**)GetPtrOffset(Offsets.Children);
-        public int PropertiesSize => *(int*)GetPtrOffset(Offsets.PropertiesSize);
+        public FString SuperStruct => *(FString*)GetPtrOffset(48);
+        public TArray<TPair<FName, long>> Names => *(TArray<TPair<FName, long>>*)GetPtrOffset(64);
 
-        public bool IsA(UObject* Class)
-        {
-            fixed (UStruct* thisPtr = &this)
-            {
-                for (UStruct* Struct = thisPtr; Struct != null; Struct = Struct->SuperStruct)
-                {
-                    if (Struct == Class)
-                        return true;
-                }
-            }
-            return false;
-        }
-        
+
+
         // UField
         private UField _obj;
         public UField* Next => _obj.Next;

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScripterSharp
+namespace ScripterSharpCommon
 {
     public static class ImGui
     {
@@ -142,6 +142,14 @@ namespace ScripterSharp
         public static extern unsafe float GetWindowWidth();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowHeight@ImGui@@YAMXZ")]
         public static extern unsafe float GetWindowHeight();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabBar@ImGui@@YA_NPEBDH@Z")]
+        public static extern unsafe bool BeginTabBar(string str_id, TabBarFlags flags = TabBarFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabBar@ImGui@@YAXXZ")]
+        public static extern unsafe void EndTabBar();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabItem@ImGui@@YA_NPEBDPEA_NH@Z")]
+        public static extern unsafe bool BeginTabItem(string label, bool* p_open = null, TabItemFlags flags = TabItemFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabItem@ImGui@@YAXXZ")]
+        public static extern unsafe void EndTabItem();
 
 
 
@@ -238,5 +246,35 @@ namespace ScripterSharp
             NoSharedDelay = 1 << 17,  // IsItemHovered() only: Disable shared delay system where moving from one item to the next keeps the previous timer for a short time (standard for tooltips with long delays)
         };
 
+        [Flags]
+        public enum TabBarFlags : int
+        {
+            None = 0,
+            Reorderable = 1 << 0,   // Allow manually dragging tabs to re-order them + New tabs are appended at the end of list
+            AutoSelectNewTabs = 1 << 1,   // Automatically select new tabs when they appear
+            TabListPopupButton = 1 << 2,   // Disable buttons to open the tab list popup
+            NoCloseWithMiddleMouseButton = 1 << 3,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You may handle this behavior manually on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+            NoTabListScrollingButtons = 1 << 4,   // Disable scrolling buttons (apply when fitting policy is ImGuiTabBarFlags_FittingPolicyScroll)
+            NoTooltip = 1 << 5,   // Disable tooltips when hovering a tab
+            DrawSelectedOverline = 1 << 6,   // Draw selected overline markers over selected tab
+            FittingPolicyResizeDown = 1 << 7,   // Resize tabs when they don't fit
+            FittingPolicyScroll = 1 << 8,   // Add scroll buttons when tabs don't fit
+            FittingPolicyMask_ = FittingPolicyResizeDown | FittingPolicyScroll,
+            FittingPolicyDefault_ = FittingPolicyResizeDown,
+        };
+        [Flags]
+        public enum TabItemFlags
+        {
+            None = 0,
+            UnsavedDocument = 1 << 0,   // Display a dot next to the title + set NoAssumedClosure.
+            SetSelected = 1 << 1,   // Trigger flag to programmatically make the tab selected when calling BeginTabItem()
+            NoCloseWithMiddleMouseButton = 1 << 2,   // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You may handle this behavior manually on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+            NoPushId = 1 << 3,   // Don't call PushID()/PopID() on BeginTabItem()/EndTabItem()
+            NoTooltip = 1 << 4,   // Disable tooltip for the given tab
+            NoReorder = 1 << 5,   // Disable reordering this tab or having another tab cross over this tab
+            Leading = 1 << 6,   // Enforce the tab position to the left of the tab bar (after the tab list popup button)
+            Trailing = 1 << 7,   // Enforce the tab position to the right of the tab bar (before the scrolling buttons)
+            NoAssumedClosure = 1 << 8,   // Tab is selected when trying to close + closure is not immediately assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+        };
     }
 }

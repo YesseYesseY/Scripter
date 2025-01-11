@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using ScripterSharp.UE;
+using ScripterSharpCommon.UE;
 
-namespace ScripterSharp
+namespace ScripterSharpCommon
 {
     public static unsafe class Natives
     {

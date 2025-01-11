@@ -7,13 +7,39 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Text;
-using ScripterSharp.UE;
+using ScripterSharpCommon.UE;
 using ScripterSharpCommon;
 
 namespace ScripterSharp
 {
+    public class ScripterAssemblyLoadContext : AssemblyLoadContext
+    {
+        private string PluginPath;
+
+        public ScripterAssemblyLoadContext(string path)
+        {
+            PluginPath = path;
+        }
+
+        protected override Assembly? Load(AssemblyName assemblyName)
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (asm.GetName().Name == assemblyName.Name)
+                {
+                    Logger.Log($"Using already existing {assemblyName.Name}");
+                    return asm;
+                }
+            }
+
+            return LoadFromAssemblyPath(Path.Combine(PluginPath, $"{assemblyName.Name}.dll"));
+        }
+    }
     public static class Scripter
     {
+        public static List<BaseModule> modules = new List<BaseModule>();
+        public static ScripterAssemblyLoadContext AssemblyLoader;
+
         public static string FortniteVersionString = "";
         public static double FortniteVersion;
         public static string EngineVersionString = "";
@@ -21,8 +47,6 @@ namespace ScripterSharp
 
         public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false) => new nint(Natives.FindPatternC(signature, bRelative, offset, bIsVar));
         private static unsafe void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
-
-
 
         static List<Delegate> yestes = new List<Delegate>(); 
         private static unsafe bool Setup()
@@ -156,49 +180,7 @@ namespace ScripterSharp
             var StructSize = UStructClass->PropertiesSize;
             Offsets.FunctionFlags = StructSize;
 
-            // This should be simpler when "plugins" are implemented
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach(var type in assembly.GetTypes())
-                {
-                    foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
-                    {
-                        var attrib = (ProcessEventHookAttribute?)Attribute.GetCustomAttribute(method, typeof(ProcessEventHookAttribute));
-                        if (attrib != null)
-                        {
-                            var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
-                            yestes.Add(del); // shoutout garbage collector
-                            AddProcessEventHook(UObject.FindObject(attrib.name), del);
-                        }
-                    }
-                }
-            }
-
             return true;
-        }
-
-        // im actually crying tears of sadness ive been up for HOURS trying tgo make this all work
-        // staring at stupid ass System.IO.FileNotFoundException: Could not load file or assembly 'ScripterSharpCommon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified.
-        // and all i had to do was make this STUPID class
-        class ScripterAssemblyLoadContext : AssemblyLoadContext
-        {
-            private string PluginPath;
-
-            public ScripterAssemblyLoadContext(string path)
-            {
-                PluginPath = path;
-            }
-
-            protected override Assembly? Load(AssemblyName assemblyName)
-            {
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (asm.GetName().Name == assemblyName.Name)
-                        return asm;
-                }
-
-                return LoadFromAssemblyPath(Path.Combine(PluginPath, $"{assemblyName.Name}.dll"));
-            }
         }
 
         [UnmanagedCallersOnly]
@@ -218,22 +200,35 @@ namespace ScripterSharp
             Logger.Log($"Module path: {ModulesPath}");
             Directory.CreateDirectory(ModulesPath);
 
-            var thingy = new ScripterAssemblyLoadContext(ModulesPath);
+            AssemblyLoader = new ScripterAssemblyLoadContext(ModulesPath);
 
             foreach (var dll in Directory.GetFiles(ModulesPath, "*.dll"))
             {
                 // TODO: Look into unloading the modules
-                foreach (var typ in thingy.LoadFromAssemblyName(new AssemblyName("ExampleModule")).GetExportedTypes())
+                foreach (var typ in AssemblyLoader.LoadFromAssemblyName(new AssemblyName("ExampleModule")).GetExportedTypes())
                 {
+                    foreach (var method in typ.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        var attrib = (ProcessEventHookAttribute?)Attribute.GetCustomAttribute(method, typeof(ProcessEventHookAttribute));
+                        if (attrib != null)
+                        {
+                            var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
+                            yestes.Add(del); // shoutout garbage collector
+                            AddProcessEventHook(UObject.FindObject(attrib.name), del);
+                        }
+                    }
+
                     if (typ.IsSubclassOf(typeof(BaseModule)))
                     {
-                        BaseModule mod = (BaseModule)Activator.CreateInstance(typ);
+                        BaseModule? mod = (BaseModule?)Activator.CreateInstance(typ);
                         if (mod == null)
                         {
                             Logger.Warn($"Tried to create {typ.Name} and failed");
                             continue;
                         }
-                        
+
+                        modules.Add(mod);
+
                         Logger.Log($"Loaded module: {mod.Name}");
 
                         mod.OnLoad();
@@ -241,94 +236,7 @@ namespace ScripterSharp
                 }
             }
 
-            //DumpObjects();
-            //CreateConsole();
-            //new Thread(ScripterGui.Start).Start();
-        }
-
-        [ProcessEventHook("Function /Script/Engine.GameMode.ReadyToStartMatch")]
-        static unsafe void TestEventHook(UObject* obj, void* argPtr)
-        {
-            // Logger.Log($"{obj->GetName()} calling ReadyToStartMatch: {*(bool*)argPtr}");
-        }
-
-        static void DumpOffsets<T>()
-        {
-            foreach (var field in typeof(T).GetFields())
-            {
-                Logger.Log($"{field.Name}: {Marshal.OffsetOf<T>(field.Name)}");
-            }
-        }
-        [StructLayout(LayoutKind.Explicit, Size = 40)]
-        public unsafe struct UGameplayStatics // : UBlueprintFunctionLibrary
-        {
-            [FieldOffset(0)] private UObject _obj;
-
-            [StructLayout(LayoutKind.Sequential)]
-            private struct Params_SpawnObject
-            {
-                public UObject* ObjectClass;
-                public UObject* Outer;
-                public UObject* ReturnValue;
-            }
-            private static UObject* Func_SpawnObject;
-            public unsafe UObject* SpawnObject(UObject* ObjectClass, UObject* Outer)
-            {
-                var args = new Params_SpawnObject();
-                args.ObjectClass = ObjectClass;
-                args.Outer = Outer;
-                if (Func_SpawnObject == null) Func_SpawnObject = UObject.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
-                _obj.ProcessEvent(Func_SpawnObject, &args);
-                return args.ReturnValue;
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        unsafe struct UEngine
-        {
-            private UObject _obj;
-
-            private static int _GameViewport = -1;
-            public UGameViewportClient* GameViewport
-            {
-                get => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _GameViewport = _obj.GetChildOffset("GameViewport") : _GameViewport);
-                set => *(UGameViewportClient**)_obj.GetPtrOffset(_GameViewport == -1 ? _GameViewport = _obj.GetChildOffset("GameViewport") : _GameViewport) = value;
-            }
-        }
-        [StructLayout(LayoutKind.Explicit)]
-        unsafe struct UGameViewportClient
-        {
-            [FieldOffset(0)] private UObject _obj;
-            
-            private static int _ViewportConsole = -1;
-            public UObject* ViewportConsole
-            {
-                get => *(UObject**)_obj.GetPtrOffset(_ViewportConsole == -1 ? _obj.GetChildOffset("ViewportConsole") : _ViewportConsole);
-                set => *(UObject**)_obj.GetPtrOffset(_ViewportConsole == -1 ? _obj.GetChildOffset("ViewportConsole") : _ViewportConsole) = value;
-            }
-
-        }
-
-        static unsafe void CreateConsole()
-        {
-            var Engine = (UEngine*)UObject.FindObject("FortEngine_");
-            var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-            var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
-            Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
-        }
-
-        public unsafe static void DumpObjects()
-        {
-            string objFilePath = "C:/FN/obj.txt";
-            Logger.Log($"Writing ~{UObject.Objects.Num} objects to {objFilePath}");
-            using (var stream = File.OpenWrite(objFilePath))
-            {
-                foreach (UObject* obj in UObject.Objects)
-                {
-                    stream.Write(Encoding.UTF8.GetBytes($"{obj->GetFullName()}\n"));
-                }
-            }
-            Logger.Log("Finished!");
+            new Thread(ScripterGui.Start).Start();
         }
     }
 }

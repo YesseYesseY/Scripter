@@ -7,6 +7,8 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ScripterSharpCommon;
+using ScripterSharpCommon.UE;
 
 // https://github.com/ocornut/imgui/blob/master/examples/example_win32_directx9/
 namespace ScripterSharp
@@ -33,11 +35,38 @@ namespace ScripterSharp
         {
             ImGui.ShowDemoWindow();
 
+            if (ImGui.Begin("Module window"))
+            {
+                if (ImGui.BeginTabBar("Module tab bar"))
+                {
+                    foreach (var mod in Scripter.modules)
+                    {
+                        if (ImGui.BeginTabItem(mod.Name))
+                        {
+                            mod.OnGui();
+                            ImGui.EndTabItem();
+                        }
+                    }
+
+                    ImGui.EndTabBar();
+                }
+            }
+            ImGui.End();
+
             if (ImGui.Begin("Window thingy"))
             {
                 if (ImGui.Button("Dump objects"))
                 {
-                    Scripter.DumpObjects();
+                    string objFilePath = "C:/FN/obj.txt";
+                    Logger.Log($"Writing ~{UObject.Objects.Num} objects to {objFilePath}");
+                    using (var stream = File.OpenWrite(objFilePath))
+                    {
+                        foreach (UObject* obj in UObject.Objects)
+                        {
+                            stream.Write(Encoding.UTF8.GetBytes($"{obj->GetFullName()}\n"));
+                        }
+                    }
+                    Logger.Log("Finished!");
                 }
                 if (ImGui.Button("Advanced dump"))
                 {
