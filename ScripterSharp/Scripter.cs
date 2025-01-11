@@ -5,8 +5,10 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using System.Text;
 using ScripterSharp.UE;
+using ScripterSharpCommon;
 
 namespace ScripterSharp
 {
@@ -20,7 +22,7 @@ namespace ScripterSharp
         public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false) => new nint(Natives.FindPatternC(signature, bRelative, offset, bIsVar));
         private static unsafe void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
 
-        
+
 
         static List<Delegate> yestes = new List<Delegate>(); 
         private static unsafe bool Setup()
@@ -175,23 +177,73 @@ namespace ScripterSharp
             return true;
         }
 
+        // im actually crying tears of sadness ive been up for HOURS trying tgo make this all work
+        // staring at stupid ass System.IO.FileNotFoundException: Could not load file or assembly 'ScripterSharpCommon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'. The system cannot find the file specified.
+        // and all i had to do was make this STUPID class
+        class ScripterAssemblyLoadContext : AssemblyLoadContext
+        {
+            private string PluginPath;
+
+            public ScripterAssemblyLoadContext(string path)
+            {
+                PluginPath = path;
+            }
+
+            protected override Assembly? Load(AssemblyName assemblyName)
+            {
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (asm.GetName().Name == assemblyName.Name)
+                        return asm;
+                }
+
+                return LoadFromAssemblyPath(Path.Combine(PluginPath, $"{assemblyName.Name}.dll"));
+            }
+        }
+
         [UnmanagedCallersOnly]
         public static unsafe void Init() // is basically just Setup() from structs.h
         {
             Win32.AllocConsole();
-            Console.SetOut(new StreamWriter(File.Create("CONOUT$")));
 
             Logger.Log("Hello from c#");
-
+            
             if (!Setup())
             {
                 Logger.Error("Failed setup");
                 return;
             }
 
+            var ModulesPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScripterSharp", "Modules");
+            Logger.Log($"Module path: {ModulesPath}");
+            Directory.CreateDirectory(ModulesPath);
+
+            var thingy = new ScripterAssemblyLoadContext(ModulesPath);
+
+            foreach (var dll in Directory.GetFiles(ModulesPath, "*.dll"))
+            {
+                // TODO: Look into unloading the modules
+                foreach (var typ in thingy.LoadFromAssemblyName(new AssemblyName("ExampleModule")).GetExportedTypes())
+                {
+                    if (typ.IsSubclassOf(typeof(BaseModule)))
+                    {
+                        BaseModule mod = (BaseModule)Activator.CreateInstance(typ);
+                        if (mod == null)
+                        {
+                            Logger.Warn($"Tried to create {typ.Name} and failed");
+                            continue;
+                        }
+                        
+                        Logger.Log($"Loaded module: {mod.Name}");
+
+                        mod.OnLoad();
+                    }
+                }
+            }
+
             //DumpObjects();
-            CreateConsole();
-            new Thread(ScripterGui.Start).Start();
+            //CreateConsole();
+            //new Thread(ScripterGui.Start).Start();
         }
 
         [ProcessEventHook("Function /Script/Engine.GameMode.ReadyToStartMatch")]

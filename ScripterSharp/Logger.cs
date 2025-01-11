@@ -13,6 +13,7 @@ namespace ScripterSharp
             var orig = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.WriteLine($"[CSharp] {str}");
+            //Natives.CSharpPrint(str);
             Console.ForegroundColor = orig;
         }
         public static void Log(string str) => Log($"{str}", ConsoleColor.DarkGreen); 

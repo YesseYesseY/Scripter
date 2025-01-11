@@ -79,5 +79,10 @@ namespace ScripterSharp
         public static extern nint GetModuleHandleW([MarshalAs(UnmanagedType.LPWStr)]string lpModuleName);
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int AllocConsole();
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        public static extern int SetConsoleMode(nint hConsoleHandle, uint dwMode);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        public static extern int CreateFileW([MarshalAs(UnmanagedType.LPWStr)]string lpFileName, uint dwDesiredAccess, uint dwShareMode, 
+            nint lpSecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, nint hTemplateFile);
     }
 }

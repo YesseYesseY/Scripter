@@ -14,5 +14,8 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<OutputPath>$(SolutionDir)Build\ScripterSharp\</OutputPath>
 	</PropertyGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ScripterSharpCommon\ScripterSharpCommon.csproj" />
+	</ItemGroup>
 
 </Project>

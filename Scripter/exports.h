@@ -13,6 +13,11 @@ extern "C" {
 		return FindPattern(signature, bRelative, offset, bIsVar);
 	}
 	
+	DLL_EXPORT void CSharpPrint(const char* str)
+	{
+		std::cout << "[CSharp] " << str << '\n';
+	}
+	
 	DLL_EXPORT void AddProcessEventHook(void* func, void(*csfunc)(void*, void*))
 	{
 		ProcessEventHooks[func] = csfunc;
