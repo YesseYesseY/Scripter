@@ -45,13 +45,10 @@ namespace ScripterSharp
         public static string EngineVersionString = "";
         public static double EngineVersion;
 
-        public static nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false) => new nint(Natives.FindPatternC(signature, bRelative, offset, bIsVar));
-        private static unsafe void AddProcessEventHook(UObject* func, Natives.PEHookDelegate csfunc) => Natives.AddProcessEventHook(func, csfunc);
-
         static List<Delegate> yestes = new List<Delegate>(); 
         private static unsafe bool Setup()
         {
-            var GetEngineAddr = FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
+            var GetEngineAddr = Utils.FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
             if (GetEngineAddr == nint.Zero)
             {
                 Logger.Error("Couldn't find GetEngineVersion");
@@ -90,54 +87,54 @@ namespace ScripterSharp
 
             if (EngineVersion >= 416 && EngineVersion <= 420)
             {
-                ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8D 1C C8 81 4B ? ? ? ? ? 49 63 76 30", false, 7, true);
+                ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8D 1C C8 81 4B ? ? ? ? ? 49 63 76 30", false, 7, true);
 
                 if (ObjectsAddr == nint.Zero)
-                    ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8D 14 C8 EB 03 49 8B D6 8B 42 08 C1 E8 1D A8 01 0F 85 ? ? ? ? F7 86 ? ? ? ? ? ? ? ?", false, 7, true);
+                    ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8D 14 C8 EB 03 49 8B D6 8B 42 08 C1 E8 1D A8 01 0F 85 ? ? ? ? F7 86 ? ? ? ? ? ? ? ?", false, 7, true);
 
                 if (EngineVersion == 420)
-                    FNameToStringAddr = FindPattern("48 89 5C 24 ? 57 48 83 EC 40 83 79 04 00 48 8B DA 48 8B F9 75 23 E8 ? ? ? ? 48 85 C0 74 19 48 8B D3 48 8B C8 E8 ? ? ? ? 48");
+                    FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 57 48 83 EC 40 83 79 04 00 48 8B DA 48 8B F9 75 23 E8 ? ? ? ? 48 85 C0 74 19 48 8B D3 48 8B C8 E8 ? ? ? ? 48");
                 else
                 {
-                    FNameToStringAddr = FindPattern("40 53 48 83 EC 40 83 79 04 00 48 8B DA 75 19 E8 ? ? ? ? 48 8B C8 48 8B D3 E8 ? ? ? ?");
+                    FNameToStringAddr = Utils.FindPattern("40 53 48 83 EC 40 83 79 04 00 48 8B DA 75 19 E8 ? ? ? ? 48 8B C8 48 8B D3 E8 ? ? ? ?");
 
                     if (FNameToStringAddr == nint.Zero) // This means that we are in season 1 (i think).
                     {
-                        FNameToStringAddr = FindPattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B DA 4C 8B F1 E8 ? ? ? ? 4C 8B C8 41 8B 06 99");
+                        FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B DA 4C 8B F1 E8 ? ? ? ? 4C 8B C8 41 8B 06 99");
 
                         if (FNameToStringAddr != nint.Zero)
                             EngineVersion = 416;
                     }
                 }
 
-                ProcessEventAddr = FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 48 63 41 0C 45 33 F6");
+                ProcessEventAddr = Utils.FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 48 63 41 0C 45 33 F6");
 
                 UseNewObjects = false;
             }
 
             if (EngineVersion >= 421 && EngineVersion <= 424)
             {
-                FNameToStringAddr = FindPattern("48 89 5C 24 ? 57 48 83 EC 30 83 79 04 00 48 8B DA 48 8B F9");
-                ProcessEventAddr = FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? ? ? ? 45 33 F6");
+                FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 57 48 83 EC 30 83 79 04 00 48 8B DA 48 8B F9");
+                ProcessEventAddr = Utils.FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? ? ? ? 45 33 F6");
             }
 
             if (EngineVersion >= 425 && EngineVersion < 500)
             {
-                FNameToStringAddr = FindPattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 30 8B 01 48 8B F1 44 8B 49 04 8B F8 C1 EF 10 48 8B DA 0F B7 C8 89 4D 24 89 7D 20 45 85 C9");
-                ProcessEventAddr = FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 8B 41 0C 45 33 F6");
+                FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 30 8B 01 48 8B F1 44 8B 49 04 8B F8 C1 EF 10 48 8B DA 0F B7 C8 89 4D 24 89 7D 20 45 85 C9");
+                ProcessEventAddr = Utils.FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 8B 41 0C 45 33 F6");
             }
 
             if (EngineVersion >= 421 && EngineVersion <= 426)
             {
-                ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1 EB 03 48 8B ? 81 48 08 ? ? ? 40 49", false, 7, true);
+                ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1 EB 03 48 8B ? 81 48 08 ? ? ? 40 49", false, 7, true);
 
                 if (ObjectsAddr == nint.Zero)
-                    ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
+                    ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
             }
 
             if (FortniteVersion >= 16.00 && FortniteVersion < 18.40) // 4.26.1
             {
-                ObjectsAddr = FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
+                ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
             }
 
             if (FNameToStringAddr == nint.Zero)
@@ -214,7 +211,7 @@ namespace ScripterSharp
                         {
                             var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
                             yestes.Add(del); // shoutout garbage collector
-                            AddProcessEventHook(UObject.FindObject(attrib.name), del);
+                            Natives.AddProcessEventHook(UObject.FindObject(attrib.name), del);
                         }
                     }
 
