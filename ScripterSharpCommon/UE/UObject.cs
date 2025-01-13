@@ -23,17 +23,17 @@ namespace ScripterSharpCommon.UE
         public unsafe List<nint> GetAllChildren() // TODO: Make this IEnumerable?
         {
             List<nint> ret = new List<nint>();
-            for (var CurrentClass = ClassPrivate; CurrentClass != null; CurrentClass = CurrentClass->SuperStruct)
+            for (var CurrentClass = ClassPrivate; CurrentClass is not null; CurrentClass = CurrentClass->SuperStruct)
             {
                 var Child = CurrentClass->Children;
 
-                if (Child != null)
+                if (Child is not null)
                 {
                     var Next = Child->Next;
 
-                    if (Next != null)
+                    if (Next is not null)
                     {
-                        while (Child != null)
+                        while (Child is not null)
                         {
                             ret.Add((nint)Child);
                             Child = Child->Next;
@@ -76,7 +76,7 @@ namespace ScripterSharpCommon.UE
         public string GetFullName()
         {
             string temp = "";
-            for (var outer = OuterPrivate; outer != null; outer = outer->OuterPrivate)
+            for (var outer = OuterPrivate; outer is not null; outer = outer->OuterPrivate)
                 temp = $"{outer->GetName()}.{temp}";
 
             return $"{ClassPrivate->GetName()} {temp}{GetName()}";
@@ -86,7 +86,10 @@ namespace ScripterSharpCommon.UE
         {
             fixed (UObject* ptr = &this)
             {
-                Natives.ProcessEvent(ptr, func, args);
+                if (Natives.ProcessEvent is not null)
+                    Natives.ProcessEvent(ptr, func, args);
+                else
+                    Logger.Warn("Tried to call ProcessEvent but ProcessEvent is null");
             }
         }
 

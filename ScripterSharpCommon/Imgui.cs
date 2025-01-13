@@ -106,7 +106,7 @@ namespace ScripterSharpCommon
             if (string.IsNullOrEmpty(ImGuiVersionStr))
             {
                 var _str = Marshal.PtrToStringAnsi(_GetVersion());
-                if (_str != null)
+                if (_str is not null)
                     ImGuiVersionStr = _str;
             };
 
@@ -150,6 +150,12 @@ namespace ScripterSharpCommon
         public static extern unsafe bool BeginTabItem(string label, bool* p_open = null, TabItemFlags flags = TabItemFlags.None);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabItem@ImGui@@YAXXZ")]
         public static extern unsafe void EndTabItem();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
+        public static extern unsafe bool Checkbox(string label, bool* v);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
+        public static extern unsafe bool Checkbox(string label, ref bool v);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SameLine@ImGui@@YAXMM@Z")]
+        public static extern unsafe void SameLine(float offset_from_start_x = 0.0f, float spacing = -1.0f);
 
 
 

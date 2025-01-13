@@ -37,8 +37,10 @@ namespace ScripterSharpCommon
 
         public static unsafe nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false)
         {
-            var base_addess = Win32.GetModuleHandleW(null);
+            var base_addess = GetModuleHandle(null);
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
             var ntHeaders = (IMAGE_NT_HEADERS64*)(base_addess + ((IMAGE_DOS_HEADER*)base_addess)->e_lfanew);
+#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 
             var sizeOfImage = ntHeaders->OptionalHeader.SizeOfImage;
             var patternBytes = PatternToByte(signature);

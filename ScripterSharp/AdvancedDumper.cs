@@ -126,7 +126,7 @@ namespace ScripterSharp
 #endif
                 )
             {
-                if (Obj == null) continue;
+                if (Obj is null) continue;
                 StringBuilder sb = new StringBuilder();
                 string folder = "";
                 string ObjName = Obj->GetName();
@@ -160,7 +160,7 @@ namespace ScripterSharp
                     sb.AppendLine($"[StructLayout(LayoutKind.Explicit, Size = {ObjAsStruct->PropertiesSize})]");
                     sb.Append("public struct ").Append(ClassName);
                     folder = IsAClass ? "classes" : "structs";
-                    if (ObjAsStruct->SuperStruct != null)
+                    if (ObjAsStruct->SuperStruct is not null)
                     {
                         sb.Append(" // : U").Append(ObjAsStruct->SuperStruct->GetName());
                     }
@@ -171,7 +171,7 @@ namespace ScripterSharp
                     List<DumperField> fields = new List<DumperField>();
                     List<DumperFunction> funcs = new List<DumperFunction>();
 
-                    for (var Child = ObjAsStruct->Children; Child != null; Child = Child->Next)
+                    for (var Child = ObjAsStruct->Children; Child is not null; Child = Child->Next)
                     {
                         var IsAProperty = Child->ClassPrivate->IsA(UPropertyClass);
                         var ChildName = Child->GetName();
@@ -193,7 +193,7 @@ namespace ScripterSharp
                                 Name = ChildName,
                                 FullName = Child->GetFullName()
                             };
-                            for (var FuncChild = ((UStruct*)Child)->Children; FuncChild != null; FuncChild = FuncChild->Next)
+                            for (var FuncChild = ((UStruct*)Child)->Children; FuncChild is not null; FuncChild = FuncChild->Next)
                             {
                                 var FuncChildAsProperty = (UProperty*)FuncChild;
                                 var (FuncChildType, FuncChildNotes) = GetType((UObject*)FuncChild);
@@ -239,12 +239,12 @@ namespace ScripterSharp
                             {
                                 sb.Append($"\t\tpublic {param.Type} {param.Name};\n");
                             }
-                            if (func.ReturnParam != null)
+                            if (func.ReturnParam is not null)
                                 sb.Append($"\t\tpublic {func.ReturnParam.Value.Type} {func.ReturnParam.Value.Name};\n");
                             sb.Append("\t}\n");
                         }
                         sb.Append($"\tprivate static UObject* Func_{func.Name};\n");
-                        var returnType = func.ReturnParam == null ? "void" : func.ReturnParam.Value.Type;
+                        var returnType = func.ReturnParam is null ? "void" : func.ReturnParam.Value.Type;
                         sb.Append($"\tpublic {returnType} {func.Name}(");
                         for (int i = 0; i < func.Params.Count; i++)
                         {
@@ -253,6 +253,7 @@ namespace ScripterSharp
                             if (func.Params.Count - 1 != i) sb.Append(", ");
                         }
                         sb.Append(')');
+
                         if (false) // For setting NoFunctionality
                         {
                             sb.Append(';');
@@ -268,14 +269,14 @@ namespace ScripterSharp
                                     sb.Append($"\t\targs.{param.Name} = {param.Name};\n");
                                 }
                             }
-                            sb.Append($"\t\tif (Func_{func.Name} == null) Func_{func.Name} = Scripter.FindObject(\"{func.FullName}\");\n");
+                            sb.Append($"\t\tif (Func_{func.Name} is null) Func_{func.Name} = Scripter.FindObject(\"{func.FullName}\");\n");
                             sb.Append($"\t\t_obj.ProcessEvent(Func_{func.Name}, ");
                             if (func.AllParams.Count > 0)
                                 sb.Append("&args);\n");
                             else
                                 sb.Append("null);\n");
 
-                            if (func.ReturnParam != null)
+                            if (func.ReturnParam is not null)
                                 sb.Append($"\t\treturn args.{func.ReturnParam.Value.Name};\n");
                             sb.Append("\t}");
                         }
@@ -327,7 +328,7 @@ namespace ScripterSharp
                 else if (Child->ClassPrivate->IsA(UBytePropertyClass))
                 {
                     var Enum = *(UObject**)Child->GetPtrOffset(PropertySize);
-                    if (Enum != null)
+                    if (Enum is not null)
                     {
                         ChildType = $"TEnumAsByte<{Enum->GetName()}>";
                     }
@@ -346,13 +347,13 @@ namespace ScripterSharp
                 //    var Value = *(UObject**)Child->GetPtrOffset(PropertySize + 8);
                 //    var (KeyType, KeyNotes) = GetType(Key);
                 //    var (ValueType, ValueNotes) = GetType(Value);
-                //    ChildType = $"TMap<{KeyType},{ValueType}{(KeyNotes == null ? "" : $" /* {KeyNotes}, {ValueNotes} */")}>";
+                //    ChildType = $"TMap<{KeyType},{ValueType}{(KeyNotes is null ? "" : $" /* {KeyNotes}, {ValueNotes} */")}>";
                 //}
                 else if (Child->ClassPrivate->IsA(UArrayPropertyClass))
                 {
                     var ObjPropType = *(UObject**)Child->GetPtrOffset(PropertySize);
                     var (CT, CTNotes) = GetType(ObjPropType);
-                    ChildType = $"TArray<{CT}{(CTNotes == null ? "" : $" /* {CTNotes} */")}>";
+                    ChildType = $"TArray<{CT}{(CTNotes is null ? "" : $" /* {CTNotes} */")}>";
                 }
             }
 

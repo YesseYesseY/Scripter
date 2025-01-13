@@ -27,7 +27,7 @@ namespace ScripterSharpCommon.UE
 
             if (ChunkIndex > NumChunks) return null;
             FUObjectItem* Chunk = Objects[ChunkIndex];
-            if (Chunk == null) return null;
+            if (Chunk is null) return null;
 
             var obj = (Chunk + WithinChunkIndex)->Object;
 

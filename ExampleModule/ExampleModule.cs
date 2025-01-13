@@ -8,21 +8,28 @@ namespace ExampleModule
     {
         public override string Name => "Example Module";
 
+        public override void OnInit()
+        {
+            Logger.Log("On Init");
+        }
+
         public override void OnLoad()
         {
-            var Engine = (UEngine*)UObject.FindObject("FortEngine_");
-            var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-            var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
-            Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
+            Logger.Log("On Load");
         }
 
         public override void OnGui()
         {
-            ImGui.Text("This gui text is from the module");
+            if (ImGui.Button("Create Console"))
+            {
+                var Engine = (UEngine*)UObject.FindObject("FortEngine_");
+                var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+                var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
+                Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
+            }
         }
 
-
-#if true
+#if false
         [ProcessEventHook("Function /Script/Engine.GameMode.ReadyToStartMatch")]
         static unsafe void TestEventHook(UObject* obj, void* argPtr)
         {
@@ -49,7 +56,7 @@ namespace ExampleModule
             var args = new Params_SpawnObject();
             args.ObjectClass = ObjectClass;
             args.Outer = Outer;
-            if (Func_SpawnObject == null) Func_SpawnObject = UObject.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
+            if (Func_SpawnObject is null) Func_SpawnObject = UObject.FindObject("Function /Script/Engine.GameplayStatics.SpawnObject");
             _obj.ProcessEvent(Func_SpawnObject, &args);
             return args.ReturnValue;
         }

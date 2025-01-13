@@ -38,18 +38,13 @@ namespace ScripterSharp
     public static class Scripter
     {
         public static List<BaseModule> modules = new List<BaseModule>();
-        public static ScripterAssemblyLoadContext AssemblyLoader;
+        public static ScripterAssemblyLoadContext? AssemblyLoader;
         static Dictionary<nint, Natives.PEHookDelegate> PEhooks = new Dictionary<nint, Natives.PEHookDelegate>();
+        static List<Delegate> yestes = new List<Delegate>(); // Literally just exists because of the garbage collector
 
-        static List<Delegate> yestes = new List<Delegate>(); 
-        private static unsafe bool Setup()
+        public static unsafe void Setup()
         {
             var GetEngineAddr = Utils.FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
-            if (GetEngineAddr == nint.Zero)
-            {
-                Logger.Error("Couldn't find GetEngineVersion");
-                return false;
-            }
             delegate*<FString> GetEngineVersion = (delegate*<FString>)GetEngineAddr;
             string FullVersion = GetEngineVersion().ToString();
 
@@ -72,7 +67,7 @@ namespace ScripterSharp
                     Logger.Error(e.Message);
                     Logger.Error(FortniteVersionString);
                     Logger.Error(EngineVersionString);
-                    return false;
+                    return;
                 }
 
                 Utils.EngineVersionString = EngineVersionString;
@@ -140,28 +135,25 @@ namespace ScripterSharp
             if (FNameToStringAddr == nint.Zero)
             {
                 Logger.Error("Failed to find FNameToString");
-                return false;
+                return;
             }
             if (ProcessEventAddr == nint.Zero)
             {
                 Logger.Error("Failed to find ProcessEvent");
-                return false;
+                return;
             }
             if (ObjectsAddr == nint.Zero)
             {
                 Logger.Error("Failed to find Objects");
-                return false;
+                return;
             }
 
-
             Natives.FNameToString = (delegate*<FName*, FString*, void>)FNameToStringAddr;
+            UObject.Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
+
             var tempDel = new Natives.ProcessEventDelegate(ProcessEventHook);
             yestes.Add(tempDel);
-            nint orig = 0;
-            Minhook.CreateHook(ProcessEventAddr, Marshal.GetFunctionPointerForDelegate(tempDel), &orig);
-            Minhook.EnableHook(ProcessEventAddr);
-            Natives.ProcessEvent = Marshal.GetDelegateForFunctionPointer<Natives.ProcessEventDelegate>(orig); // (delegate*<UObject*, UObject*, void*, void>)orig;
-            UObject.Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
+            Minhook.CreateAndEnableHook<Natives.ProcessEventDelegate>(ProcessEventAddr, tempDel, out Natives.ProcessEvent);
 
             // TODO: Test more versions
             if (Utils.EngineVersion >= 4.20 && Utils.EngineVersion <= 4.21)
@@ -182,7 +174,27 @@ namespace ScripterSharp
             var StructSize = UStructClass->PropertiesSize;
             Offsets.FunctionFlags = StructSize;
 
-            return true;
+            foreach (var mod in modules)
+            {
+                foreach (var method in mod.GetType().GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    var attrib = (ProcessEventHookAttribute?)Attribute.GetCustomAttribute(method, typeof(ProcessEventHookAttribute));
+                    if (attrib is not null)
+                    {
+                        var UFunc = UObject.FindObject(attrib.name);
+                        if (UFunc is null)
+                        {
+                            Logger.Warn($"Tried to hook \"{attrib.name}\" but couldn't find it");
+                            continue;
+                        }
+                        var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
+                        yestes.Add(del); // shoutout garbage collector
+                        PEhooks.Add((nint)UFunc, del);
+                    }
+                }
+            }
+
+            return;
         }
 
         private static unsafe void ProcessEventHook(UObject* obj, UObject* func, void* args)
@@ -191,8 +203,8 @@ namespace ScripterSharp
             {
                 hookFunc(obj, args);
             }
-            if (obj is not null && func is not null)
-                Natives.ProcessEvent(obj, func, args);
+
+            obj->ProcessEvent(func, args);
         }
 
         [UnmanagedCallersOnly]
@@ -201,18 +213,6 @@ namespace ScripterSharp
             Win32.AllocConsole();
 
             Logger.Log($"Hello from c# ({Process.GetCurrentProcess().Id})");
-
-            if (Minhook.Initialize() != 0)
-            {
-                Logger.Error("Failed to initialize minhook");
-                return;
-            }
-
-            if (!Setup())
-            {
-                Logger.Error("Failed setup");
-                return;
-            }
 
             var ModulesPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScripterSharp", "Modules");
             Logger.Log($"Module path: {ModulesPath}");
@@ -223,37 +223,33 @@ namespace ScripterSharp
             foreach (var dll in Directory.GetFiles(ModulesPath, "*.dll"))
             {
                 // TODO: Look into unloading the modules
-                foreach (var typ in AssemblyLoader.LoadFromAssemblyName(new AssemblyName("ExampleModule")).GetExportedTypes())
+                foreach (var typ in AssemblyLoader.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(dll))).GetExportedTypes())
                 {
-                    foreach (var method in typ.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
-                    {
-                        var attrib = (ProcessEventHookAttribute?)Attribute.GetCustomAttribute(method, typeof(ProcessEventHookAttribute));
-                        if (attrib != null)
-                        {
-                            var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
-                            yestes.Add(del); // shoutout garbage collector
-                            PEhooks.Add((nint)UObject.FindObject(attrib.name), del);
-                        }
-                    }
-
                     if (typ.IsSubclassOf(typeof(BaseModule)))
                     {
                         BaseModule? mod = (BaseModule?)Activator.CreateInstance(typ);
-                        if (mod == null)
+                        if (mod is null)
                         {
-                            Logger.Warn($"Tried to create {typ.Name} and failed");
+                            Logger.Warn($"Tried to create module {typ.Name} but failed");
                             continue;
                         }
 
                         modules.Add(mod);
 
-                        Logger.Log($"Loaded module: {mod.Name}");
+                        Logger.Log($"Initialized module: {mod.Name}");
 
-                        mod.OnLoad();
+                        mod.OnInit();
                     }
                 }
             }
 
+            if (Minhook.Initialize() != 0)
+            {
+                Logger.Error("Failed to initialize minhook");
+                return;
+            }
+
+            new Thread(Setup).Start(); // TODO: You should be able to inject on process start and nothing should go wrong
             new Thread(ScripterGui.Start).Start();
         }
     }

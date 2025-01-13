@@ -13,7 +13,7 @@ namespace ScripterSharpCommon
         public delegate nint WndProc(nint hWnd, uint msg, nint wParam, nint lParam);
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct WNDCLASSEXW
+        public struct WNDCLASSEX
         {
             public int cbSize;
             public uint style;
@@ -25,7 +25,7 @@ namespace ScripterSharpCommon
             public nint hCursor;
             public nint hbrBackground;
             [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpszMenuName;
+            public string? lpszMenuName;
             [MarshalAs(UnmanagedType.LPWStr)]
             public string lpszClassName;
             public nint hIconSm;
@@ -132,42 +132,42 @@ namespace ScripterSharpCommon
 
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
-        [DllImport("user32.dll")]
-        public static extern nint DefWindowProcW(nint hWnd, uint msg, nint wParam, nint lParam);
+        [DllImport("user32.dll", EntryPoint = "DefWindowProcW")]
+        public static extern nint DefWindowProc(nint hWnd, uint msg, nint wParam, nint lParam);
         [DllImport("user32.dll")]
         public static extern int ShowWindow(nint hWnd, int nCmdShow);
         [DllImport("user32.dll")]
         public static extern int UpdateWindow(nint hWnd);
         [DllImport("user32.dll")]
         public static extern int DestroyWindow(nint hWnd);
-        [DllImport("user32.dll")]
-        public static extern int UnregisterClassW([MarshalAs(UnmanagedType.LPWStr)]string lpClassName, nint hInstance);
-        [DllImport("user32.dll")]
-        public static extern int MessageBoxW(nint hWnd, [MarshalAs(UnmanagedType.LPWStr)]string lpText, [MarshalAs(UnmanagedType.LPWStr)]string lpCaption, uint hInstance);
-        [DllImport("user32.dll")]
-        public static unsafe extern int PeekMessageW(ref MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
+        [DllImport("user32.dll", EntryPoint = "UnregisterClassW")]
+        public static extern int UnregisterClass([MarshalAs(UnmanagedType.LPWStr)]string lpClassName, nint hInstance);
+        [DllImport("user32.dll", EntryPoint = "MessageBoxW")]
+        public static extern int MessageBox(nint hWnd, [MarshalAs(UnmanagedType.LPWStr)]string lpText, [MarshalAs(UnmanagedType.LPWStr)]string lpCaption, uint hInstance);
+        [DllImport("user32.dll", EntryPoint = "PeekMessageW")]
+        public static unsafe extern int PeekMessage(ref MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
         [DllImport("user32.dll")]
         public static unsafe extern int TranslateMessage(ref MSG lpMsg);
         [DllImport("user32.dll")]
         public static unsafe extern long DispatchMessageW(ref MSG lpMsg);
-        [DllImport("user32.dll")]
-        public static unsafe extern int SetWindowLongW(nint hwnd, int nIndex, int dwNewLong);
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongW")]
+        public static unsafe extern int SetWindowLong(nint hwnd, int nIndex, int dwNewLong);
         [DllImport("user32.dll")]
         public static unsafe extern int SetWindowPos(nint hwnd, nint hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-        [DllImport("user32.dll")]
-        public static extern nint RegisterClassExW(ref WNDCLASSEXW unnamedParam1); // Great choice of name microsoft
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern nint CreateWindowExW(uint dwExStyle, [MarshalAs(UnmanagedType.LPWStr)]string lpClassName, [MarshalAs(UnmanagedType.LPWStr)]string lpWindowName, uint dwStyle,
+        [DllImport("user32.dll", EntryPoint = "RegisterClassExW")]
+        public static extern nint RegisterClassEx(ref WNDCLASSEX unnamedParam1); // Great choice of name microsoft
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "CreateWindowExW")]
+        public static extern nint CreateWindowEx(uint dwExStyle, [MarshalAs(UnmanagedType.LPWStr)]string lpClassName, [MarshalAs(UnmanagedType.LPWStr)]string lpWindowName, uint dwStyle,
             int X, int Y, int nWidth, int nHeight, nint hWndParent, nint hMenu, nint hInstance, nint lpParam);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern nint GetModuleHandleW([MarshalAs(UnmanagedType.LPWStr)]string lpModuleName);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetModuleHandleW")]
+        public static extern nint GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)]string? lpModuleName);
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int AllocConsole();
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int SetConsoleMode(nint hConsoleHandle, uint dwMode);
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern int CreateFileW([MarshalAs(UnmanagedType.LPWStr)]string lpFileName, uint dwDesiredAccess, uint dwShareMode, 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "CreateFileW")]
+        public static extern int CreateFile([MarshalAs(UnmanagedType.LPWStr)]string lpFileName, uint dwDesiredAccess, uint dwShareMode, 
             nint lpSecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, nint hTemplateFile);
     }
 }

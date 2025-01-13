@@ -15,22 +15,6 @@ namespace ScripterSharp
 {
     public unsafe static class ScripterGui
     {
-        static bool demoWindow = true;
-        public static uint ToD3DColor(this Vector4 vec)
-        {
-            byte a = (byte)(Math.Clamp(vec.W, 0, 1) * 255);
-            byte r = (byte)(Math.Clamp(vec.X, 0, 1) * 255);
-            byte g = (byte)(Math.Clamp(vec.Y, 0, 1) * 255);
-            byte b = (byte)(Math.Clamp(vec.Z, 0, 1) * 255);
-
-            return (uint)((a << 24) | (r << 16) | (g << 8) | b);
-        }
-
-        private static Win32.WNDCLASSEXW wc;
-        private static DXD9.D3DPRESENT_PARAMETERS g_d3dpp;
-        private static nint hwnd;
-        private static DXD9.LPDIRECT3D9* g_pD3D;
-        private static DXD9.LPDIRECT3DDEVICE9* g_pd3dDevice;
         private static void MainGui()
         {
             ImGui.ShowDemoWindow();
@@ -95,6 +79,23 @@ namespace ScripterSharp
 
         // Under is no touchy zone (unless u know what ur doing)
 
+        public static uint ToD3DColor(this Vector4 vec)
+        {
+            byte a = (byte)(Math.Clamp(vec.W, 0, 1) * 255);
+            byte r = (byte)(Math.Clamp(vec.X, 0, 1) * 255);
+            byte g = (byte)(Math.Clamp(vec.Y, 0, 1) * 255);
+            byte b = (byte)(Math.Clamp(vec.Z, 0, 1) * 255);
+
+            return (uint)((a << 24) | (r << 16) | (g << 8) | b);
+        }
+
+        private static Win32.WNDCLASSEX wc;
+        private static DXD9.D3DPRESENT_PARAMETERS g_d3dpp;
+        private static nint hwnd;
+        private static DXD9.LPDIRECT3D9* g_pD3D;
+        private static DXD9.LPDIRECT3DDEVICE9* g_pd3dDevice;
+
+
         public static void Start() => Backend();
 
         private static void CleanupDeviceD3D()
@@ -116,7 +117,7 @@ namespace ScripterSharp
         private static unsafe bool CreateDeviceD3D()
         {
             g_pD3D = DXD9.Direct3DCreate9(32);
-            if (g_pD3D == null) return false;
+            if (g_pD3D is null) return false;
 
             g_d3dpp = new DXD9.D3DPRESENT_PARAMETERS()
             {
@@ -159,19 +160,19 @@ namespace ScripterSharp
                     return 0;
             }
 
-            return Win32.DefWindowProcW(hWnd, msg, wParam, lParam);
+            return Win32.DefWindowProc(hWnd, msg, wParam, lParam);
         }
 
         private static void Backend()
         {
-            wc = new Win32.WNDCLASSEXW()
+            wc = new Win32.WNDCLASSEX()
             {
-                cbSize = Marshal.SizeOf(typeof(Win32.WNDCLASSEXW)),
+                cbSize = Marshal.SizeOf(typeof(Win32.WNDCLASSEX)),
                 style = 0x0040,
                 lpfnWndProc = ScripterWndProc,
                 cbClsExtra = 0,
                 cbWndExtra = 0,
-                hInstance = Win32.GetModuleHandleW(null),
+                hInstance = Win32.GetModuleHandle(null),
                 hIcon = nint.Zero,
                 hCursor = nint.Zero,
                 hbrBackground = nint.Zero,
@@ -179,8 +180,8 @@ namespace ScripterSharp
                 lpszClassName = "Scripter Gui",
                 hIconSm = nint.Zero,
             };
-            Win32.RegisterClassExW(ref wc);
-            hwnd = Win32.CreateWindowExW(0, wc.lpszClassName, "Scripter from C#", 0, 100, 100, 1280, 800, nint.Zero, nint.Zero, wc.hInstance, nint.Zero);
+            Win32.RegisterClassEx(ref wc);
+            hwnd = Win32.CreateWindowEx(0, wc.lpszClassName, "Scripter from C#", 0, 100, 100, 1280, 800, nint.Zero, nint.Zero, wc.hInstance, nint.Zero);
 
             // Removes border, titlebar, etc
             // Win32.SetWindowLongW(hwnd, -16, 0);
@@ -189,7 +190,7 @@ namespace ScripterSharp
             if (!CreateDeviceD3D())
             {
                 CleanupDeviceD3D();
-                Win32.UnregisterClassW(wc.lpszClassName, wc.hInstance);
+                Win32.UnregisterClass(wc.lpszClassName, wc.hInstance);
                 return;
             }
             Win32.ShowWindow(hwnd, 10);
@@ -215,7 +216,7 @@ namespace ScripterSharp
             Win32.MSG msg = new Win32.MSG();
             while (!done)
             {
-                while (Win32.PeekMessageW(ref msg, nint.Zero, 0, 0, 0x0001) != 0)
+                while (Win32.PeekMessage(ref msg, nint.Zero, 0, 0, 0x0001) != 0)
                 {
                     Win32.TranslateMessage(ref msg);
                     Win32.DispatchMessageW(ref msg);
@@ -268,7 +269,7 @@ namespace ScripterSharp
 
             CleanupDeviceD3D();
             Win32.DestroyWindow(hwnd);
-            Win32.UnregisterClassW(wc.lpszClassName, wc.hInstance);
+            Win32.UnregisterClass(wc.lpszClassName, wc.hInstance);
         }
     }
 }

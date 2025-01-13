@@ -13,7 +13,7 @@ namespace ScripterSharpCommon.UE
         {
             fixed (UStruct* thisPtr = &this)
             {
-                for (UStruct* Struct = thisPtr; Struct != null; Struct = Struct->SuperStruct)
+                for (UStruct* Struct = thisPtr; Struct is not null; Struct = Struct->SuperStruct)
                 {
                     if (Struct == Class)
                         return true;

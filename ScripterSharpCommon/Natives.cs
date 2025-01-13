@@ -13,6 +13,6 @@ namespace ScripterSharpCommon
         public delegate void PEHookDelegate(UObject* obj, void* argptr); // for some reason delegate*<UObject*, void*> doesn't work
         public delegate void ProcessEventDelegate(UObject* obj, UObject* func, void* args);
         public static unsafe delegate*<FName*, FString*, void> FNameToString;
-        public static unsafe ProcessEventDelegate ProcessEvent;
+        public static unsafe ProcessEventDelegate? ProcessEvent;
     }
 }
