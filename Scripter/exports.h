@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UE/structs.h>
+#include <MinHook.h>
 #include "dotnet.h"
 #include <d3d9.h>
 #pragma comment(lib, "d3d9.lib")
@@ -8,11 +8,25 @@
 #define DLL_EXPORT _declspec(dllexport)
 
 extern "C" {
-	DLL_EXPORT void AddProcessEventHook(void* func, void(*csfunc)(void*, void*))
+	//////////////// MINHOOK ////////////////
+	
+	DLL_EXPORT MH_STATUS MH__Initialize()
 	{
-		ProcessEventHooks[func] = csfunc;
+		return MH_Initialize();
 	}
 	
+	DLL_EXPORT MH_STATUS MH__CreateHook(LPVOID pTarget, LPVOID pDetour, LPVOID* ppOriginal)
+	{
+		return MH_CreateHook(pTarget, pDetour, ppOriginal);
+	}
+	
+	DLL_EXPORT MH_STATUS MH__EnableHook(LPVOID pTarget)
+	{
+		return MH_EnableHook(pTarget);
+	}
+
+	//////////////// DXD9 ////////////////
+
 	DLL_EXPORT HRESULT DXD9_CreateDevice(LPDIRECT3D9 thing, UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 	{
 		return thing->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);

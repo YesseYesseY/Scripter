@@ -11,4 +11,8 @@
     <ProjectReference Include="..\ScripterSharpCommon\ScripterSharpCommon.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;%25localappdata%25\ScripterSharp\Modules&quot; /Y" />
+  </Target>
+
 </Project>

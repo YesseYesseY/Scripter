@@ -39,11 +39,7 @@ namespace ScripterSharp
     {
         public static List<BaseModule> modules = new List<BaseModule>();
         public static ScripterAssemblyLoadContext AssemblyLoader;
-
-        public static string FortniteVersionString = "";
-        public static double FortniteVersion;
-        public static string EngineVersionString = "";
-        public static double EngineVersion;
+        static Dictionary<nint, Natives.PEHookDelegate> PEhooks = new Dictionary<nint, Natives.PEHookDelegate>();
 
         static List<Delegate> yestes = new List<Delegate>(); 
         private static unsafe bool Setup()
@@ -60,14 +56,16 @@ namespace ScripterSharp
             if (!FullVersion.Contains("Live") && !FullVersion.Contains("Next") && !FullVersion.Contains("Cert"))
             {
                 // 4.23.0-6058028+++Fortnite+Release-8.50
-                EngineVersionString = FullVersion.Substring(0, FullVersion.IndexOf('-'));
-                FortniteVersionString = FullVersion.Substring(FullVersion.LastIndexOf('-') + 1);
+                var EngineVersionString = FullVersion.Substring(0, FullVersion.IndexOf('-'));
+                var FortniteVersionString = FullVersion.Substring(FullVersion.LastIndexOf('-') + 1);
                 if (EngineVersionString.IndexOf('.') != EngineVersionString.LastIndexOf('.'))
                     EngineVersionString = EngineVersionString.Substring(0, EngineVersionString.LastIndexOf('.'));
                 try
                 {
-                    FortniteVersion = double.Parse(FortniteVersionString, CultureInfo.InvariantCulture);
-                    EngineVersion = double.Parse(EngineVersionString, CultureInfo.InvariantCulture) * 100;
+                    var FortniteVersion = double.Parse(FortniteVersionString, CultureInfo.InvariantCulture);
+                    var EngineVersion = double.Parse(EngineVersionString, CultureInfo.InvariantCulture); // I dont see a reason why this whould be * 100
+                    Utils.FortniteVersion = FortniteVersion;
+                    Utils.EngineVersion = EngineVersion; 
                 }
                 catch (Exception e)
                 {
@@ -77,6 +75,8 @@ namespace ScripterSharp
                     return false;
                 }
 
+                Utils.EngineVersionString = EngineVersionString;
+                Utils.FortniteVersionString = FortniteVersionString;
             }
 
             var UseNewObjects = true;
@@ -85,14 +85,14 @@ namespace ScripterSharp
             nint ProcessEventAddr = nint.Zero;
             nint FNameToStringAddr = nint.Zero;
 
-            if (EngineVersion >= 416 && EngineVersion <= 420)
+            if (Utils.EngineVersion >= 4.16 && Utils.EngineVersion <= 4.20)
             {
                 ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8D 1C C8 81 4B ? ? ? ? ? 49 63 76 30", false, 7, true);
 
                 if (ObjectsAddr == nint.Zero)
                     ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8D 14 C8 EB 03 49 8B D6 8B 42 08 C1 E8 1D A8 01 0F 85 ? ? ? ? F7 86 ? ? ? ? ? ? ? ?", false, 7, true);
 
-                if (EngineVersion == 420)
+                if (Utils.EngineVersion == 4.20)
                     FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 57 48 83 EC 40 83 79 04 00 48 8B DA 48 8B F9 75 23 E8 ? ? ? ? 48 85 C0 74 19 48 8B D3 48 8B C8 E8 ? ? ? ? 48");
                 else
                 {
@@ -103,7 +103,7 @@ namespace ScripterSharp
                         FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B DA 4C 8B F1 E8 ? ? ? ? 4C 8B C8 41 8B 06 99");
 
                         if (FNameToStringAddr != nint.Zero)
-                            EngineVersion = 416;
+                            Utils.EngineVersion = 416;
                     }
                 }
 
@@ -112,19 +112,19 @@ namespace ScripterSharp
                 UseNewObjects = false;
             }
 
-            if (EngineVersion >= 421 && EngineVersion <= 424)
+            if (Utils.EngineVersion >= 4.21 && Utils.EngineVersion <= 4.24)
             {
                 FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 57 48 83 EC 30 83 79 04 00 48 8B DA 48 8B F9");
                 ProcessEventAddr = Utils.FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? ? ? ? 45 33 F6");
             }
 
-            if (EngineVersion >= 425 && EngineVersion < 500)
+            if (Utils.EngineVersion >= 4.25 && Utils.EngineVersion < 5.00)
             {
                 FNameToStringAddr = Utils.FindPattern("48 89 5C 24 ? 55 56 57 48 8B EC 48 83 EC 30 8B 01 48 8B F1 44 8B 49 04 8B F8 C1 EF 10 48 8B DA 0F B7 C8 89 4D 24 89 7D 20 45 85 C9");
                 ProcessEventAddr = Utils.FindPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 8B 41 0C 45 33 F6");
             }
 
-            if (EngineVersion >= 421 && EngineVersion <= 426)
+            if (Utils.EngineVersion >= 4.21 && Utils.EngineVersion <= 4.26)
             {
                 ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1 EB 03 48 8B ? 81 48 08 ? ? ? 40 49", false, 7, true);
 
@@ -132,7 +132,7 @@ namespace ScripterSharp
                     ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
             }
 
-            if (FortniteVersion >= 16.00 && FortniteVersion < 18.40) // 4.26.1
+            if (Utils.FortniteVersion >= 16.00 && Utils.FortniteVersion < 18.40) // 4.26.1
             {
                 ObjectsAddr = Utils.FindPattern("48 8B 05 ? ? ? ? 48 8B 0C C8 48 8B 04 D1", true, 3);
             }
@@ -155,17 +155,22 @@ namespace ScripterSharp
 
 
             Natives.FNameToString = (delegate*<FName*, FString*, void>)FNameToStringAddr;
-            Natives.ProcessEvent = (delegate*<UObject*, UObject*, void*, void>)ProcessEventAddr;
+            var tempDel = new Natives.ProcessEventDelegate(ProcessEventHook);
+            yestes.Add(tempDel);
+            nint orig = 0;
+            Minhook.CreateHook(ProcessEventAddr, Marshal.GetFunctionPointerForDelegate(tempDel), &orig);
+            Minhook.EnableHook(ProcessEventAddr);
+            Natives.ProcessEvent = Marshal.GetDelegateForFunctionPointer<Natives.ProcessEventDelegate>(orig); // (delegate*<UObject*, UObject*, void*, void>)orig;
             UObject.Objects = new ObjectArray(ObjectsAddr, UseNewObjects);
 
             // TODO: Test more versions
-            if (EngineVersion >= 420 && EngineVersion <= 421)
+            if (Utils.EngineVersion >= 4.20 && Utils.EngineVersion <= 4.21)
             {
                 Offsets.SuperStruct = 48;
                 Offsets.Children = 56;
                 Offsets.PropertiesSize = 64;
             }
-            if (EngineVersion >= 422)
+            if (Utils.EngineVersion >= 4.22)
             {
                 Offsets.SuperStruct = 64;
                 Offsets.Children = 72;
@@ -180,13 +185,29 @@ namespace ScripterSharp
             return true;
         }
 
+        private static unsafe void ProcessEventHook(UObject* obj, UObject* func, void* args)
+        {
+            if (PEhooks.TryGetValue((nint)func, out var hookFunc))
+            {
+                hookFunc(obj, args);
+            }
+            if (obj is not null && func is not null)
+                Natives.ProcessEvent(obj, func, args);
+        }
+
         [UnmanagedCallersOnly]
         public static unsafe void Init() // is basically just Setup() from structs.h
         {
             Win32.AllocConsole();
 
-            Logger.Log("Hello from c#");
-            
+            Logger.Log($"Hello from c# ({Process.GetCurrentProcess().Id})");
+
+            if (Minhook.Initialize() != 0)
+            {
+                Logger.Error("Failed to initialize minhook");
+                return;
+            }
+
             if (!Setup())
             {
                 Logger.Error("Failed setup");
@@ -211,7 +232,7 @@ namespace ScripterSharp
                         {
                             var del = (Natives.PEHookDelegate)method.CreateDelegate(typeof(Natives.PEHookDelegate), null);
                             yestes.Add(del); // shoutout garbage collector
-                            Natives.AddProcessEventHook(UObject.FindObject(attrib.name), del);
+                            PEhooks.Add((nint)UObject.FindObject(attrib.name), del);
                         }
                     }
 

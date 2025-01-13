@@ -143,6 +143,8 @@ namespace ScripterSharpCommon
         [DllImport("user32.dll")]
         public static extern int UnregisterClassW([MarshalAs(UnmanagedType.LPWStr)]string lpClassName, nint hInstance);
         [DllImport("user32.dll")]
+        public static extern int MessageBoxW(nint hWnd, [MarshalAs(UnmanagedType.LPWStr)]string lpText, [MarshalAs(UnmanagedType.LPWStr)]string lpCaption, uint hInstance);
+        [DllImport("user32.dll")]
         public static unsafe extern int PeekMessageW(ref MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
         [DllImport("user32.dll")]
         public static unsafe extern int TranslateMessage(ref MSG lpMsg);

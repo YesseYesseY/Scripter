@@ -22,7 +22,7 @@ namespace ExampleModule
         }
 
 
-#if false
+#if true
         [ProcessEventHook("Function /Script/Engine.GameMode.ReadyToStartMatch")]
         static unsafe void TestEventHook(UObject* obj, void* argPtr)
         {

@@ -10,6 +10,11 @@ namespace ScripterSharpCommon
 {
     public class Utils
     {
+        public static string FortniteVersionString = "";
+        public static double FortniteVersion;
+        public static string EngineVersionString = "";
+        public static double EngineVersion;
+
         private static int[] PatternToByte(string pattern)
         {
             List<int> bytes = new List<int>();

@@ -116,7 +116,6 @@
     <ClInclude Include="..\imgui\imstb_truetype.h" />
     <ClInclude Include="dotnet.h" />
     <ClInclude Include="exports.h" />
-    <ClInclude Include="UE\structs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

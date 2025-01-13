@@ -14,19 +14,7 @@ namespace fs = std::filesystem;
 DWORD WINAPI Main(LPVOID)
 {
     DotNet::Init();
-
-    if (MH_Initialize() != MH_OK)
-    {
-        MessageBoxA(0, "Minhook failed to initialize!", "Setup", MB_OK);
-        return 0;
-    }
     
-    if (!Setup())
-    {
-        MessageBoxA(0, "Failed!", "Setup", MB_OK);
-        return 0;
-    }
-	
     return 0;
 }
 
