@@ -45,6 +45,11 @@ namespace ScripterSharp
         public static unsafe void Setup()
         {
             var GetEngineAddr = Utils.FindPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3");
+            if (GetEngineAddr == nint.Zero)
+            {
+                Logger.Error("Couldn't find GetEngineVersion");
+                return;
+            }
             delegate*<FString> GetEngineVersion = (delegate*<FString>)GetEngineAddr;
             string FullVersion = GetEngineVersion().ToString();
 
@@ -155,24 +160,28 @@ namespace ScripterSharp
             yestes.Add(tempDel);
             Minhook.CreateAndEnableHook<Natives.ProcessEventDelegate>(ProcessEventAddr, tempDel, out Natives.ProcessEvent);
 
-            // TODO: Test more versions
-            if (Utils.EngineVersion >= 4.20 && Utils.EngineVersion <= 4.21)
-            {
+            // Tested on 4.1, 8.51, 13.40
+            if (Utils.EngineVersion < 4.22)
                 Offsets.SuperStruct = 48;
-                Offsets.Children = 56;
-                Offsets.PropertiesSize = 64;
-            }
-            if (Utils.EngineVersion >= 4.22)
-            {
+            else
                 Offsets.SuperStruct = 64;
-                Offsets.Children = 72;
-                Offsets.PropertiesSize = 80;
+            
+            Offsets.Children = Offsets.SuperStruct + 8;
+            if (Utils.EngineVersion > 4.24)
+            {
+                Offsets.ChildrenProperties = Offsets.Children + 8;
+                Offsets.PropertiesSize = Offsets.ChildrenProperties + 8;
             }
-
+            else
+            {
+                Offsets.PropertiesSize = Offsets.Children + 8;
+            }
+            
             // From what i can see UFunction barely changes between versions, so why not go based off UStruct
             var UStructClass = (UStruct*)UObject.FindObject("Class /Script/CoreUObject.Struct");
             var StructSize = UStructClass->PropertiesSize;
             Offsets.FunctionFlags = StructSize;
+
 
             foreach (var mod in modules)
             {

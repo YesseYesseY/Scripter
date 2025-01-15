@@ -2,3 +2,6 @@
 	path = imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "minhook"]
+	path = minhook
+	url = https://github.com/TsudaKageyu/minhook/

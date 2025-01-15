@@ -35,6 +35,7 @@ namespace ScripterSharpCommon
             return bytes.ToArray();
         }
 
+        // TODO: This crashes... sometimes...
         public static unsafe nint FindPattern(string signature, bool bRelative = false, uint offset = 0, bool bIsVar = false)
         {
             var base_addess = GetModuleHandle(null);
