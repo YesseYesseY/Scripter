@@ -58,20 +58,26 @@ namespace ScripterSharp
                 }
             }
             ImGui.End();
+
+            TestGui();
         }
 
         private static void TestGui()
         {
             if (ImGui.Begin("Test window :)"))
             {
-                ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
-                if (ImGui.Button("Test button"))
+                if (ImGui.BeginChild("ExampleChild", default, ImGui.ChildFlags.Borders, ImGui.WindowFlags.None))
                 {
-                    Logger.Log("\"Hello there\" -button 2024");
-                }
-                if (ImGui.SmallButton("Test small button"))
-                {
-                    Logger.Log("\"Hello there\" -small button 2024");
+                    ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
+                    if (ImGui.Button("Test button"))
+                    {
+                        Logger.Log("\"Hello there\" -button 2024");
+                    }
+                    if (ImGui.SmallButton("Test small button"))
+                    {
+                        Logger.Log("\"Hello there\" -small button 2024");
+                    }
+                    ImGui.EndChild();
                 }
                 ImGui.End();
             }

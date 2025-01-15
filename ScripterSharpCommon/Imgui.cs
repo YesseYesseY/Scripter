@@ -72,15 +72,15 @@ namespace ScripterSharpCommon
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_CreateDeviceObjects@@YA_NXZ")]
         public static extern bool ImplDX9_CreateDeviceObjects();
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Begin@ImGui@@YA_NPEBDPEA_NH@Z")]
-        public static extern unsafe bool Begin([MarshalAs(UnmanagedType.LPStr)] string name, bool* p_open = null, WindowFlags flags = WindowFlags.None);
+        public static extern unsafe bool Begin( string name, bool* p_open = null, WindowFlags flags = WindowFlags.None);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?End@ImGui@@YAXXZ")]
         public static extern unsafe void End();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Text@ImGui@@YAXPEBDZZ")]
-        public static extern unsafe void Text([MarshalAs(UnmanagedType.LPStr)] string str);
+        public static extern unsafe void Text( string str);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SmallButton@ImGui@@YA_NPEBD@Z")]
-        public static extern unsafe bool SmallButton([MarshalAs(UnmanagedType.LPStr)] string label);
+        public static extern unsafe bool SmallButton( string label);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Button@ImGui@@YA_NPEBDAEBUImVec2@@@Z")]
-        public static extern unsafe bool Button([MarshalAs(UnmanagedType.LPStr)] string label, in ImVec2 size = new());
+        public static extern unsafe bool Button( string label, in ImVec2 size = new());
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowMetricsWindow@ImGui@@YAXPEA_N@Z")]
         public static extern unsafe void ShowMetricsWindow(bool* p_open = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowDebugLogWindow@ImGui@@YAXPEA_N@Z")]
@@ -92,9 +92,9 @@ namespace ScripterSharpCommon
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleEditor@ImGui@@YAXPEAUImGuiStyle@@@Z")]
         public static extern unsafe bool ShowStyleEditor(void* _ref = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleSelector@ImGui@@YA_NPEBD@Z")]
-        public static extern unsafe void ShowStyleSelector([MarshalAs(UnmanagedType.LPStr)] string label);
+        public static extern unsafe void ShowStyleSelector( string label);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowFontSelector@ImGui@@YAXPEBD@Z")]
-        public static extern unsafe void ShowFontSelector([MarshalAs(UnmanagedType.LPStr)] string label);
+        public static extern unsafe void ShowFontSelector( string label);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowUserGuide@ImGui@@YAXXZ")]
         public static extern unsafe void ShowUserGuide();
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetVersion@ImGui@@YAPEBDXZ")]
@@ -119,7 +119,7 @@ namespace ScripterSharpCommon
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsClassic@ImGui@@YAXPEAUImGuiStyle@@@Z")]
         public static extern unsafe void StyleColorsClassic(nint dst = 0);
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NPEBDAEBUImVec2@@HH@Z")]
-        public static extern unsafe bool BeginChild([MarshalAs(UnmanagedType.LPStr)]string str_id, in ImVec2 size = new(), ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
+        public static extern unsafe bool BeginChild(string str_id, in ImVec2 size = new(), ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NIAEBUImVec2@@HH@Z")]
         public static extern unsafe bool BeginChild(uint id, in ImVec2 size = new(), ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndChild@ImGui@@YAXXZ")]
