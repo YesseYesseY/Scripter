@@ -20,12 +20,12 @@ namespace ExampleModule
 
         public override void OnGui()
         {
-            if (ImGui.Button("Create Console"))
+            if (ImGui.Button("Create Console")) // Sometimes button just randomly activates...
             {
-                var Engine = (UEngine*)UObject.FindObject("FortEngine_");
-                var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-                var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
-                Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
+                //var Engine = (UEngine*)UObject.FindObject("FortEngine_");
+                //var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+                //var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
+                //Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
             }
         }
 

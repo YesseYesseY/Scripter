@@ -165,6 +165,8 @@ namespace ScripterSharpCommon
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int AllocConsole();
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        public static extern unsafe int ReadProcessMemory(nint hProcess, nint lpBaseAddress, byte* lpBuffer, ulong nSize, out ulong lpNumberOfBytesRead);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         public static extern int SetConsoleMode(nint hConsoleHandle, uint dwMode);
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "CreateFileW")]
         public static extern int CreateFile([MarshalAs(UnmanagedType.LPWStr)]string lpFileName, uint dwDesiredAccess, uint dwShareMode, 
