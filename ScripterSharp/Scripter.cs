@@ -79,6 +79,9 @@ namespace ScripterSharp
                 Utils.FortniteVersionString = FortniteVersionString;
             }
 
+            Logger.Log($"Engine: {Utils.EngineVersion}");
+            Logger.Log($"Fortnite: {Utils.FortniteVersion}");
+
             var UseNewObjects = true;
 
             nint ObjectsAddr = nint.Zero;
@@ -176,7 +179,7 @@ namespace ScripterSharp
             {
                 Offsets.PropertiesSize = Offsets.Children + 8;
             }
-            
+
             // From what i can see UFunction barely changes between versions, so why not go based off UStruct
             var UStructClass = (UStruct*)UObject.FindObject("Class /Script/CoreUObject.Struct");
             var StructSize = UStructClass->PropertiesSize;
