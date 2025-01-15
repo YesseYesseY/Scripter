@@ -10,7 +10,7 @@ namespace ScripterSharpCommon
 {
     public static class ImGui
     {
-        // TODO: Drawlist, Viewport
+        // TODO: Drawlist, Viewport, SetNextWindowSizeConstraints
         [StructLayout(LayoutKind.Sequential)]
         public struct ImVec2
         {
@@ -36,51 +36,51 @@ namespace ScripterSharpCommon
         }
 
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowDemoWindow@ImGui@@YAXPEA_N@Z")]
-        public static extern unsafe void ShowDemoWindow(bool* show = null);
+        private static extern unsafe void _ShowDemoWindow(byte* show = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_NewFrame@@YAXXZ")]
-        public static extern void ImplDX9_NewFrame();
+        public static extern unsafe void ImplDX9_NewFrame();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_NewFrame@@YAXXZ")]
-        public static extern void ImplWin32_NewFrame();
+        public static extern unsafe void ImplWin32_NewFrame();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndFrame@ImGui@@YAXXZ")]
-        public static extern void EndFrame();
+        public static extern unsafe void EndFrame();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?NewFrame@ImGui@@YAXXZ")]
-        public static extern void NewFrame();
+        public static extern unsafe void NewFrame();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_WndProcHandler@@YA_JPEAUHWND__@@I_K_J@Z")]
-        public static extern nint ImplWin32_WndProcHandler(nint hWnd, uint msg, nint wParam, nint lParam);
+        public static extern unsafe nint ImplWin32_WndProcHandler(nint hWnd, uint msg, nint wParam, nint lParam);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?CreateContext@ImGui@@YAPEAUImGuiContext@@PEAUImFontAtlas@@@Z")]
-        public static extern nint CreateContext(nint shared_font_atlas = 0);
+        public static extern unsafe nint CreateContext(nint shared_font_atlas = 0);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsDark@ImGui@@YAXPEAUImGuiStyle@@@Z")]
-        public static extern void StyleColorsDark(nint dst = 0);
+        public static extern unsafe void StyleColorsDark(nint dst = 0);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_Init@@YA_NPEAX@Z")]
-        public static extern bool ImplWin32_Init(nint hwnd);
+        private static extern unsafe byte _ImplWin32_Init(nint hwnd);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_Init@@YA_NPEAUIDirect3DDevice9@@@Z")]
-        public static extern unsafe bool ImplDX9_Init(DXD9.LPDIRECT3DDEVICE9* device);
+        private static extern unsafe byte _ImplDX9_Init(DXD9.LPDIRECT3DDEVICE9* device);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Render@ImGui@@YAXXZ")]
-        public static extern void Render();
+        public static extern unsafe void Render();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetDrawData@ImGui@@YAPEAUImDrawData@@XZ")]
-        public static extern nint GetDrawData();
+        public static extern unsafe nint GetDrawData();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_RenderDrawData@@YAXPEAUImDrawData@@@Z")]
-        public static extern void ImplDX9_RenderDrawData(nint draw_data);
+        public static extern unsafe void ImplDX9_RenderDrawData(nint draw_data);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_Shutdown@@YAXXZ")]
-        public static extern void ImplDX9_Shutdown();
+        public static extern unsafe void ImplDX9_Shutdown();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplWin32_Shutdown@@YAXXZ")]
-        public static extern void ImplWin32_Shutdown();
+        public static extern unsafe void ImplWin32_Shutdown();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?DestroyContext@ImGui@@YAXPEAUImGuiContext@@@Z")]
-        public static extern void DestroyContext(nint ctx = 0);
+        public static extern unsafe void DestroyContext(nint ctx = 0);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_InvalidateDeviceObjects@@YAXXZ")]
-        public static extern void ImplDX9_InvalidateDeviceObjects();
+        public static extern unsafe void ImplDX9_InvalidateDeviceObjects();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ImGui_ImplDX9_CreateDeviceObjects@@YA_NXZ")]
-        public static extern bool ImplDX9_CreateDeviceObjects();
+        private static extern unsafe byte _ImplDX9_CreateDeviceObjects();
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Begin@ImGui@@YA_NPEBDPEA_NH@Z")]
-        public static extern unsafe bool Begin( string name, bool* p_open = null, WindowFlags flags = WindowFlags.None);
+        private static extern unsafe byte _Begin( string name, bool* p_open = null, WindowFlags flags = WindowFlags.None);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?End@ImGui@@YAXXZ")]
         public static extern unsafe void End();
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Text@ImGui@@YAXPEBDZZ")]
         public static extern unsafe void Text( string str);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SmallButton@ImGui@@YA_NPEBD@Z")]
-        public static extern unsafe bool SmallButton( string label);
+        private static extern unsafe byte _SmallButton(string label);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Button@ImGui@@YA_NPEBDAEBUImVec2@@@Z")]
-        public static extern unsafe bool Button( string label, in ImVec2 size = new());
+        private static extern unsafe byte _Button(string label, in ImVec2 size = default);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowMetricsWindow@ImGui@@YAXPEA_N@Z")]
         public static extern unsafe void ShowMetricsWindow(bool* p_open = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowDebugLogWindow@ImGui@@YAXPEA_N@Z")]
@@ -90,7 +90,7 @@ namespace ScripterSharpCommon
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowAboutWindow@ImGui@@YAXPEA_N@Z")]
         public static extern unsafe void ShowAboutWindow(bool* p_open = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleEditor@ImGui@@YAXPEAUImGuiStyle@@@Z")]
-        public static extern unsafe bool ShowStyleEditor(void* _ref = null);
+        private static extern unsafe byte _ShowStyleEditor(void* _ref = null);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowStyleSelector@ImGui@@YA_NPEBD@Z")]
         public static extern unsafe void ShowStyleSelector( string label);
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowFontSelector@ImGui@@YAXPEBD@Z")]
@@ -98,8 +98,80 @@ namespace ScripterSharpCommon
         [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?ShowUserGuide@ImGui@@YAXXZ")]
         public static extern unsafe void ShowUserGuide();
         [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetVersion@ImGui@@YAPEBDXZ")]
-
         private static extern unsafe nint _GetVersion();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsLight@ImGui@@YAXPEAUImGuiStyle@@@Z")]
+        public static extern unsafe void StyleColorsLight(nint dst = 0);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsClassic@ImGui@@YAXPEAUImGuiStyle@@@Z")]
+        public static extern unsafe void StyleColorsClassic(nint dst = 0);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NPEBDAEBUImVec2@@HH@Z")]
+        private static extern unsafe byte _BeginChild(string str_id, in ImVec2 size = default, ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NIAEBUImVec2@@HH@Z")]
+        private static extern unsafe byte _BeginChild(uint id, in ImVec2 size = default, ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndChild@ImGui@@YAXXZ")]
+        public static extern unsafe void EndChild();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowAppearing@ImGui@@YA_NXZ")]
+        private static extern unsafe byte _IsWindowAppearing();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowCollapsed@ImGui@@YA_NXZ")]
+        private static extern unsafe byte _IsWindowCollapsed();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowFocused@ImGui@@YA_NH@Z")]
+        private static extern unsafe byte _IsWindowFocused(FocusedFlags flags = FocusedFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowHovered@ImGui@@YA_NH@Z")]
+        private static extern unsafe byte _IsWindowHovered(HoveredFlags flags = HoveredFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowDpiScale@ImGui@@YAMXZ")]
+        public static extern unsafe float GetWindowDpiScale();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowPos@ImGui@@YA?AUImVec2@@XZ")]
+        public static extern unsafe ImVec2 GetWindowPos();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowSize@ImGui@@YA?AUImVec2@@XZ")]
+        public static extern unsafe ImVec2 GetWindowSize();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowWidth@ImGui@@YAMXZ")]
+        public static extern unsafe float GetWindowWidth();
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowHeight@ImGui@@YAMXZ")]
+        public static extern unsafe float GetWindowHeight();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabBar@ImGui@@YA_NPEBDH@Z")]
+        private static extern unsafe byte _BeginTabBar(string str_id, TabBarFlags flags = TabBarFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabBar@ImGui@@YAXXZ")]
+        public static extern unsafe void EndTabBar();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabItem@ImGui@@YA_NPEBDPEA_NH@Z")]
+        private static extern unsafe byte _BeginTabItem(string label, bool* p_open = null, TabItemFlags flags = TabItemFlags.None);
+        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabItem@ImGui@@YAXXZ")]
+        public static extern unsafe void EndTabItem();
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
+        private static extern unsafe byte _Checkbox(string label, bool* v);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
+        private static extern unsafe byte _Checkbox(string label, ref bool v);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SameLine@ImGui@@YAXMM@Z")]
+        public static extern unsafe void SameLine(float offset_from_start_x = 0.0f, float spacing = -1.0f);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SetNextWindowPos@ImGui@@YAXAEBUImVec2@@H0@Z")]
+        public static extern unsafe void SetNextWindowPos(in ImVec2 pos, Cond cond = Cond.None, in ImVec2 pivot = default);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SetNextWindowSize@ImGui@@YAXAEBUImVec2@@H@Z")]
+        public static extern unsafe void SetNextWindowSize(in ImVec2 size, Cond cond = Cond.None);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SetNextWindowContentSize@ImGui@@YAXAEBUImVec2@@@Z")]
+        public static extern unsafe void SetNextWindowContentSize(in ImVec2 size);
+        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SetNextWindowCollapsed@ImGui@@YAX_NH@Z")]
+        private static extern unsafe void _SetNextWindowCollapsed(byte collapsed, Cond cond = Cond.None);
+
+
+
+        public static unsafe bool SmallButton(string label) => _SmallButton(label) != 0;
+        public static unsafe bool Button(string label, in ImVec2 size = default) => _Button(label, size) != 0;
+        public static unsafe bool Begin(string name, bool* p_open = null, WindowFlags flags = WindowFlags.None) => _Begin(name, p_open, flags) != 0;
+        public static unsafe bool ShowStyleEditor(void* _ref = null) => _ShowStyleEditor(_ref) != 0;
+        public static unsafe bool ImplWin32_Init(nint hwnd) => _ImplWin32_Init(hwnd) != 0;
+        public static unsafe bool ImplDX9_Init(DXD9.LPDIRECT3DDEVICE9* device) => _ImplDX9_Init(device) != 0;
+        public static unsafe bool ImplDX9_CreateDeviceObjects() => _ImplDX9_CreateDeviceObjects() != 0;
+        public static unsafe bool BeginChild(string str_id, in ImVec2 size = default, ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None) => _BeginChild(str_id, size, child_flags, window_flags) != 0;
+        public static unsafe bool BeginChild(uint id, in ImVec2 size = default, ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None) => _BeginChild(id, size, child_flags, window_flags) != 0;
+        public static unsafe bool IsWindowAppearing() => _IsWindowAppearing() != 0;
+        public static unsafe bool IsWindowCollapsed() => _IsWindowCollapsed() != 0;
+        public static unsafe bool IsWindowFocused(FocusedFlags flags = FocusedFlags.None) => _IsWindowFocused() != 0;
+        public static unsafe bool IsWindowHovered(HoveredFlags flags = HoveredFlags.None) => _IsWindowHovered() != 0;
+        public static unsafe bool BeginTabBar(string str_id, TabBarFlags flags = TabBarFlags.None) => _BeginTabBar(str_id, flags) != 0;
+        public static unsafe bool BeginTabItem(string label, bool* p_open = null, TabItemFlags flags = TabItemFlags.None) => _BeginTabItem(label, p_open, flags) != 0;
+        public static unsafe bool Checkbox(string label, bool* v) => _Checkbox(label, v) != 0;
+        public static unsafe bool Checkbox(string label, ref bool v) => _Checkbox(label, ref v) != 0;
+        public static unsafe void SetNextWindowCollapsed(bool collapsed, Cond cond = Cond.None) => _SetNextWindowCollapsed((byte)(collapsed == true ? 1 : 0), Cond.None);
+
+
         private static string ImGuiVersionStr = "";
         public static string GetVersion()
         {
@@ -112,54 +184,6 @@ namespace ScripterSharpCommon
 
             return ImGuiVersionStr;
         }
-
-
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsLight@ImGui@@YAXPEAUImGuiStyle@@@Z")]
-        public static extern unsafe void StyleColorsLight(nint dst = 0);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?StyleColorsClassic@ImGui@@YAXPEAUImGuiStyle@@@Z")]
-        public static extern unsafe void StyleColorsClassic(nint dst = 0);
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NPEBDAEBUImVec2@@HH@Z")]
-        public static extern unsafe bool BeginChild(string str_id, in ImVec2 size = new(), ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginChild@ImGui@@YA_NIAEBUImVec2@@HH@Z")]
-        public static extern unsafe bool BeginChild(uint id, in ImVec2 size = new(), ChildFlags child_flags = ChildFlags.None, WindowFlags window_flags = WindowFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndChild@ImGui@@YAXXZ")]
-        public static extern unsafe void EndChild();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowAppearing@ImGui@@YA_NXZ")]
-        public static extern unsafe bool IsWindowAppearing();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowCollapsed@ImGui@@YA_NXZ")]
-        public static extern unsafe bool IsWindowCollapsed();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowFocused@ImGui@@YA_NH@Z")]
-        public static extern unsafe bool IsWindowFocused(FocusedFlags flags = FocusedFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?IsWindowHovered@ImGui@@YA_NH@Z")]
-        public static extern unsafe bool IsWindowHovered(HoveredFlags flags = HoveredFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowDpiScale@ImGui@@YAMXZ")]
-        public static extern unsafe float GetWindowDpiScale();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowPos@ImGui@@YA?AUImVec2@@XZ")]
-        public static extern unsafe ImVec2 GetWindowPos();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowSize@ImGui@@YA?AUImVec2@@XZ")]
-        public static extern unsafe ImVec2 GetWindowSize();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowWidth@ImGui@@YAMXZ")]
-        public static extern unsafe float GetWindowWidth();
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?GetWindowHeight@ImGui@@YAMXZ")]
-        public static extern unsafe float GetWindowHeight();
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabBar@ImGui@@YA_NPEBDH@Z")]
-        public static extern unsafe bool BeginTabBar(string str_id, TabBarFlags flags = TabBarFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabBar@ImGui@@YAXXZ")]
-        public static extern unsafe void EndTabBar();
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?BeginTabItem@ImGui@@YA_NPEBDPEA_NH@Z")]
-        public static extern unsafe bool BeginTabItem(string label, bool* p_open = null, TabItemFlags flags = TabItemFlags.None);
-        [DllImport("Scripter.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "?EndTabItem@ImGui@@YAXXZ")]
-        public static extern unsafe void EndTabItem();
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
-        public static extern unsafe bool Checkbox(string label, bool* v);
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?Checkbox@ImGui@@YA_NPEBDPEA_N@Z")]
-        public static extern unsafe bool Checkbox(string label, ref bool v);
-        [DllImport("Scripter.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl, EntryPoint = "?SameLine@ImGui@@YAXMM@Z")]
-        public static extern unsafe void SameLine(float offset_from_start_x = 0.0f, float spacing = -1.0f);
-
-
-
-
 
         [Flags]
         public enum WindowFlags : int
@@ -281,6 +305,16 @@ namespace ScripterSharpCommon
             Leading = 1 << 6,   // Enforce the tab position to the left of the tab bar (after the tab list popup button)
             Trailing = 1 << 7,   // Enforce the tab position to the right of the tab bar (before the scrolling buttons)
             NoAssumedClosure = 1 << 8,   // Tab is selected when trying to close + closure is not immediately assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
+        };
+
+        [Flags]
+        public enum Cond : int
+        {
+            None = 0,        // No condition (always set the variable), same as _Always
+            Always = 1 << 0,   // No condition (always set the variable), same as _None
+            Once = 1 << 1,   // Set the variable once per runtime session (only the first call will succeed)
+            FirstUseEver = 1 << 2,   // Set the variable if the object/window has no persistently saved data (no entry in .ini file)
+            Appearing = 1 << 3,   // Set the variable if the object/window is appearing after being hidden/inactive (or the first time)
         };
     }
 }

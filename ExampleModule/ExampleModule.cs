@@ -12,7 +12,6 @@ namespace ExampleModule
         {
             Logger.Log("On Init");
         }
-
         public override void OnLoad()
         {
             Logger.Log("On Load");
@@ -22,10 +21,11 @@ namespace ExampleModule
         {
             if (ImGui.Button("Create Console")) // Sometimes button just randomly activates...
             {
-                //var Engine = (UEngine*)UObject.FindObject("FortEngine_");
-                //var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
-                //var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
-                //Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
+                Logger.Log("Create console pressed");
+                var Engine = (UEngine*)UObject.FindObject("FortEngine_");
+                var GSC = (UGameplayStatics*)UObject.FindObject("GameplayStatics /Script/Engine.Default__GameplayStatics");
+                var ConsoleClass = UObject.FindObject("Class /Script/Engine.Console");
+                Engine->GameViewport->ViewportConsole = GSC->SpawnObject(ConsoleClass, (UObject*)Engine->GameViewport);
             }
         }
 
