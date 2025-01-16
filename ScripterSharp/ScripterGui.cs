@@ -65,12 +65,18 @@ namespace ScripterSharp
         {
             0.0f, 0.0f, 0.0f, 0.0f
         };
+        static float[] TestFloatColor =
+        {
+            0.0f, 0.0f, 0.0f, 0.0f
+        };
         static int[] TestInt =
         {
             0, 0, 0, 0
         };
+        static double TestDouble = 0.0;
         static ImGui.ImVec4 TestColor = new ImGui.ImVec4(1, 0, 1, 1);
         static bool TestBool = true;
+        static byte[] TestCStr = new byte[64];
 
         static float TestRangeFloatMin = 0.0f;
         static float TestRangeFloatMax = 10.0f;
@@ -78,6 +84,20 @@ namespace ScripterSharp
         static int TestRangeIntMin = 0;
         static int TestRangeIntMax = 100;
         static int RadioTest = 0;
+
+        static string[] TestComboItems =
+        {
+            "Ayy",
+            "Bee",
+            "See",
+            "Dee",
+            "Eee",
+            "Eff",
+            "Gee"
+        };
+        static int TestComboIndex = 0;
+        static string TestComboItemsString = string.Join('\0', TestComboItems) + "\0\0";
+
         private static void TestGui()
         {
             if (ImGui.Begin("Test window :)"))
@@ -94,6 +114,7 @@ namespace ScripterSharp
                         {
                             ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
                             ImGui.TextUnformatted("This is unformated text that can be formated with c# :)");
+                            ImGui.TextUnformatted($"Your mouse is at {ImGui.GetIO()->MousePos}");
                             ImGui.TextColored(TestColor, "This text is beautiful :)");
                             ImGui.TextDisabled("This text is disabled!");
                             ImGui.TextWrapped("This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping!");
@@ -135,7 +156,75 @@ namespace ScripterSharp
                             ImGui.VSliderInt("VSliderIntTest", new ImGui.ImVec2(20, 50), ref TestInt[0], 0, 100);
                             ImGui.TreePop();
                         }
-                        
+                        if (ImGui.TreeNode("Input with Keyboard"))
+                        {
+                            ImGui.InputText("InputTextTest", ref TestCStr);
+                            ImGui.InputTextMultiline("InputTextMultilineTest", ref TestCStr);
+                            ImGui.InputTextWithHint("InputTextWithHintTest", "Hint: This is a hint", ref TestCStr);
+                            ImGui.InputFloat("InputFloatTest", ref TestFloat[0]);
+                            ImGui.InputFloat2("InputFloat2Test", ref TestFloat);
+                            ImGui.InputFloat3("InputFloat3Test", ref TestFloat);
+                            ImGui.InputFloat4("InputFloat4Test", ref TestFloat);
+                            ImGui.InputInt("InputIntTest", ref TestInt[0]);
+                            ImGui.InputInt2("InputInt2Test", ref TestInt);
+                            ImGui.InputInt3("InputInt3Test", ref TestInt);
+                            ImGui.InputInt4("InputInt4Test", ref TestInt);
+                            ImGui.InputDouble("InputDoubleTest", ref TestDouble);
+                            ImGui.TreePop();
+                        }
+                        if (ImGui.TreeNode("Color Editor/Picker"))
+                        {
+                            if (ImGui.TreeNode("Float array"))
+                            {
+                                ImGui.ColorEdit3("ColorEdit3Test", ref TestFloatColor);
+                                ImGui.ColorEdit4("ColorEdit4Test", ref TestFloatColor);
+                                ImGui.ColorPicker3("ColorPicker3Test", ref TestFloatColor);
+                                ImGui.ColorPicker4("ColorPicker4Test", ref TestFloatColor);
+                                ImGui.TreePop();
+                            }
+                            if (ImGui.TreeNode("ImVec4"))
+                            {
+                                ImGui.ColorEdit3("ColorEdit3Test2", ref TestColor);
+                                ImGui.ColorEdit4("ColorEdit4Test2", ref TestColor);
+                                ImGui.ColorPicker3("ColorPicker3Test2", ref TestColor);
+                                ImGui.ColorPicker4("ColorPicker4Test2", ref TestColor);
+                                ImGui.TreePop();
+                            }
+                            ImGui.ColorButton("ColorButton", ref TestColor);
+                            ImGui.TreePop();
+                        }
+                        if (ImGui.TreeNode("Combo and ListBox"))
+                        {
+                            var TestComboPreview = TestComboItems[TestComboIndex];
+                            if (ImGui.BeginCombo("Advanced Combo", TestComboPreview))
+                            {
+                                for (int i = 0; i < TestComboItems.Length; i++)
+                                {
+                                    if (ImGui.Selectable(TestComboItems[i], TestComboIndex == i))
+                                        TestComboIndex = i;
+                                }
+                                ImGui.EndCombo();
+                            }
+                            ImGui.Combo("Simple Combo", ref TestComboIndex, TestComboItemsString);
+
+                            if (ImGui.BeginListBox("Basic List Box"))
+                            {
+                                for (int i = 0; i < TestComboItems.Length; i++)
+                                {
+                                    if (ImGui.Selectable(TestComboItems[i], TestComboIndex == i))
+                                        TestComboIndex = i;
+                                }
+                                ImGui.EndListBox();
+                            }
+                            ImGui.TreePop();
+                        }
+                        if (ImGui.TreeNode("Data Plotting"))
+                        {
+                            ImGui.PlotLines("PlotLinesTest", ref TestFloat);
+                            ImGui.PlotHistogram("PlotHistogramTest", ref TestFloat);
+                            ImGui.TreePop();
+                        }
+
                         ImGui.ProgressBar(TestFloat[0]);
                         if (ImGui.Button("Test button"))
                         {
@@ -320,11 +409,9 @@ namespace ScripterSharp
 
             ImGui.CreateContext();
 
-            /*
-                ImGuiIO& io = ImGui::GetIO();
-                io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-                io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-             */
+            var io = ImGui.GetIO();
+            io->ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;
+            io->ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;
 
             ImGui.StyleColorsDark();
 
@@ -377,7 +464,7 @@ namespace ScripterSharp
                 if (g_pd3dDevice->BeginScene() >= 0)
                 {
                     ImGui.Render();
-                    ImGui.ImplDX9_RenderDrawData(ImGui.GetDrawData());
+                    ImGui.ImplDX9_RenderDrawData((nint)ImGui.GetDrawData());
                     g_pd3dDevice->EndScene();
                 }
                 var result = g_pd3dDevice->Present(nint.Zero, nint.Zero, nint.Zero, nint.Zero);
