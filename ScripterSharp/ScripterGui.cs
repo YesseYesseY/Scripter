@@ -61,23 +61,45 @@ namespace ScripterSharp
 
             TestGui();
         }
-
+        static float[] TestFloat =
+        {
+            0.0f, 0.0f, 0.0f, 0.0f
+        };
+        static int[] TestInt =
+        {
+            0, 0, 0, 0
+        };
+        static float TestRangeFloatMin = 0.0f;
+        static float TestRangeFloatMax = 10.0f;
+        static int TestRangeIntMin = 0;
+        static int TestRangeIntMax = 100;
         private static void TestGui()
         {
             if (ImGui.Begin("Test window :)"))
             {
-                if (ImGui.BeginChild("ExampleChild", default, ImGui.ChildFlags.Borders, ImGui.WindowFlags.None))
+                ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
+                if (ImGui.BeginChild("DragSlidersTest", new ImGui.ImVec2(500, 250), ImGui.ChildFlags.Borders))
                 {
-                    ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
-                    if (ImGui.Button("Test button"))
-                    {
-                        Logger.Log("\"Hello there\" -button 2024");
-                    }
-                    if (ImGui.SmallButton("Test small button"))
-                    {
-                        Logger.Log("\"Hello there\" -small button 2024");
-                    }
+                    ImGui.Text("Drag Sliders");
+                    ImGui.DragFloat("DragFloatTest", ref TestFloat[0], 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
+                    ImGui.DragFloat2("DragFloat2Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
+                    ImGui.DragFloat3("DragFloat3Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
+                    ImGui.DragFloat4("DragFloat4Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
+                    ImGui.DragFloatRange2("DragFloatRange2Test", ref TestRangeFloatMin, ref TestRangeFloatMax, 0.1f, 0.0f, 10.0f);
+                    ImGui.DragInt("DragIntTest", ref TestInt[0], 1, 0, 100);
+                    ImGui.DragInt2("DragInt2Test", ref TestInt, 1, 0, 100);
+                    ImGui.DragInt3("DragInt3Test", ref TestInt, 1, 0, 100);
+                    ImGui.DragInt4("DragInt4Test", ref TestInt, 1, 0, 100);
+                    ImGui.DragIntRange2("DragIntRange2Test", ref TestRangeIntMin, ref TestRangeIntMax, 1, 0, 100);
                     ImGui.EndChild();
+                }
+                if (ImGui.Button("Test button"))
+                {
+                    Logger.Log("\"Hello there\" -button 2024");
+                }
+                if (ImGui.SmallButton("Test small button"))
+                {
+                    Logger.Log("\"Hello there\" -small button 2024");
                 }
                 ImGui.End();
             }
