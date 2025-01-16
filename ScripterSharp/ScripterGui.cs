@@ -69,37 +69,131 @@ namespace ScripterSharp
         {
             0, 0, 0, 0
         };
+        static ImGui.ImVec4 TestColor = new ImGui.ImVec4(1, 0, 1, 1);
+        static bool TestBool = true;
+
         static float TestRangeFloatMin = 0.0f;
         static float TestRangeFloatMax = 10.0f;
+        static float ExampleAngle = 0.0f;
         static int TestRangeIntMin = 0;
         static int TestRangeIntMax = 100;
+        static int RadioTest = 0;
         private static void TestGui()
         {
             if (ImGui.Begin("Test window :)"))
             {
-                ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
-                if (ImGui.BeginChild("DragSlidersTest", new ImGui.ImVec2(500, 250), ImGui.ChildFlags.Borders))
+                if (ImGui.BeginTabBar("TestTabBar1"))
                 {
-                    ImGui.Text("Drag Sliders");
-                    ImGui.DragFloat("DragFloatTest", ref TestFloat[0], 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
-                    ImGui.DragFloat2("DragFloat2Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
-                    ImGui.DragFloat3("DragFloat3Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
-                    ImGui.DragFloat4("DragFloat4Test", ref TestFloat, 0.01f, 0.0f, 1.0f, "%.3f", ImGui.SliderFlags.None);
-                    ImGui.DragFloatRange2("DragFloatRange2Test", ref TestRangeFloatMin, ref TestRangeFloatMax, 0.1f, 0.0f, 10.0f);
-                    ImGui.DragInt("DragIntTest", ref TestInt[0], 1, 0, 100);
-                    ImGui.DragInt2("DragInt2Test", ref TestInt, 1, 0, 100);
-                    ImGui.DragInt3("DragInt3Test", ref TestInt, 1, 0, 100);
-                    ImGui.DragInt4("DragInt4Test", ref TestInt, 1, 0, 100);
-                    ImGui.DragIntRange2("DragIntRange2Test", ref TestRangeIntMin, ref TestRangeIntMax, 1, 0, 100);
-                    ImGui.EndChild();
-                }
-                if (ImGui.Button("Test button"))
-                {
-                    Logger.Log("\"Hello there\" -button 2024");
-                }
-                if (ImGui.SmallButton("Test small button"))
-                {
-                    Logger.Log("\"Hello there\" -small button 2024");
+                    if (ImGui.TabItemButton(":)"))
+                    {
+                        Logger.Log("Hewwo! o/");
+                    }
+                    if (ImGui.BeginTabItem("Test Tab 1"))
+                    {
+                        if (ImGui.BeginChild("DragSlidersTest", new ImGui.ImVec2(500, 250), ImGui.ChildFlags.Borders))
+                        {
+                            ImGui.Text("Welcome to imgui from c# " + ImGui.GetVersion());
+                            ImGui.TextUnformatted("This is unformated text that can be formated with c# :)");
+                            ImGui.TextColored(TestColor, "This text is beautiful :)");
+                            ImGui.TextDisabled("This text is disabled!");
+                            ImGui.TextWrapped("This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping! This text is wrapping!");
+                            ImGui.LabelText("LabelTextLabel", "The text for the label");
+                            ImGui.BulletText("This is some bullet text!");
+                            ImGui.Bullet();
+                            ImGui.Text("This is some more complicated bullet text!");
+                            ImGui.SeparatorText("SeperatorLabel");
+                        }
+                        ImGui.EndChild();
+
+                        if (ImGui.TreeNode("Drag Sldiers"))
+                        {
+                            ImGui.DragFloat("DragFloatTest", ref TestFloat[0], 0.01f, 0.0f, 1.0f);
+                            ImGui.DragFloat2("DragFloat2Test", ref TestFloat, 0.01f, 0.0f, 1.0f);
+                            ImGui.DragFloat3("DragFloat3Test", ref TestFloat, 0.01f, 0.0f, 1.0f);
+                            ImGui.DragFloat4("DragFloat4Test", ref TestFloat, 0.01f, 0.0f, 1.0f);
+                            ImGui.DragFloatRange2("DragFloatRange2Test", ref TestRangeFloatMin, ref TestRangeFloatMax, 0.1f, 0.0f, 10.0f);
+                            ImGui.DragInt("DragIntTest", ref TestInt[0], 1, 0, 100);
+                            ImGui.DragInt2("DragInt2Test", ref TestInt, 1, 0, 100);
+                            ImGui.DragInt3("DragInt3Test", ref TestInt, 1, 0, 100);
+                            ImGui.DragInt4("DragInt4Test", ref TestInt, 1, 0, 100);
+                            ImGui.DragIntRange2("DragIntRange2Test", ref TestRangeIntMin, ref TestRangeIntMax, 1, 0, 100);
+                            ImGui.TreePop();
+                        }
+                        if (ImGui.TreeNode("Regular Sliders"))
+                        {
+                            ImGui.SliderFloat("SliderFloatTest", ref TestFloat[0], 0.00f, 1.0f);
+                            ImGui.SliderFloat2("SliderFloat2Test", ref TestFloat, 0.00f, 1.0f);
+                            ImGui.SliderFloat3("SliderFloat3Test", ref TestFloat, 0.00f, 1.0f);
+                            ImGui.SliderFloat4("SliderFloat4Test", ref TestFloat, 0.00f, 1.0f);
+                            ImGui.SliderAngle("SliderAngleTest", ref ExampleAngle);
+                            ImGui.SliderInt("SliderIntTest", ref TestInt[0], 0, 100);
+                            ImGui.SliderInt2("SliderInt2Test", ref TestInt, 0, 100);
+                            ImGui.SliderInt3("SliderInt3Test", ref TestInt, 0, 100);
+                            ImGui.SliderInt4("SliderInt4Test", ref TestInt, 0, 100);
+                            ImGui.VSliderFloat("VSliderFloatTest", new ImGui.ImVec2(20, 50), ref TestFloat[0], 0.0f, 1.0f);
+                            ImGui.SameLine();
+                            ImGui.VSliderInt("VSliderIntTest", new ImGui.ImVec2(20, 50), ref TestInt[0], 0, 100);
+                            ImGui.TreePop();
+                        }
+                        
+                        ImGui.ProgressBar(TestFloat[0]);
+                        if (ImGui.Button("Test button"))
+                        {
+                            Logger.Log("\"Hello there\" -button 2024");
+                        }
+                        if (ImGui.SmallButton("Test small button"))
+                        {
+                            Logger.Log("\"Hello there\" -small button 2024");
+                        }
+                        if (ImGui.InvisibleButton("InvisButton", new ImGui.ImVec2(50, 50)))
+                        {
+                            Logger.Log("You found the super secret invisible button");
+                        }
+                        if (ImGui.ArrowButton("InvisRevealer", ImGui.Dir.Up))
+                        {
+                            Logger.Log("Don't press above me!");
+                        }
+                        ImGui.Checkbox("TestCheckbox", ref TestBool);
+                        if (ImGui.RadioButton("Greeting1", RadioTest == 0)) RadioTest = 0;
+                        ImGui.SameLine();
+                        if (ImGui.RadioButton("Greeting2", RadioTest == 1)) RadioTest = 1;
+                        ImGui.SameLine();
+                        ImGui.RadioButton("Greeting3", ref RadioTest, 2);
+                        ImGui.SameLine();
+                        ImGui.RadioButton("Greeting4", ref RadioTest, 3);
+                        if (ImGui.Button("Greet"))
+                        {
+                            switch (RadioTest)
+                            {
+                                case 0:
+                                    Logger.Log("Hello!");
+                                    break;
+                                case 1:
+                                    Logger.Log("Hi!");
+                                    break;
+                                case 2:
+                                    Logger.Log("Hey!");
+                                    break;
+                                case 3:
+                                    Logger.Log("Welcome!");
+                                    break;
+                                default:
+                                    Logger.Warn("What did you do");
+                                    break;
+                            }
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Test Tab 2"))
+                    {
+                        if (ImGui.TextLink("This may or may not be a link!"))
+                        {
+                            Logger.Log("It wasn't a link get trolled!");
+                        }
+                        ImGui.TextLinkOpenURL("Press for cute cats!", "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                        ImGui.EndTabItem();
+                    }
+                    ImGui.EndTabBar();
                 }
                 ImGui.End();
             }
